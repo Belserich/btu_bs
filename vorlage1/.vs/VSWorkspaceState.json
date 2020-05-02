@@ -1,0 +1,17 @@
+{
+  "ExpandedNodes": [
+    "",
+    "\\bin",
+    "\\bin\\isodir",
+    "\\bin\\isodir\\boot",
+    "\\bin\\isodir\\boot\\grub",
+    "\\include",
+    "\\include\\device",
+    "\\include\\io",
+    "\\include\\lib",
+    "\\src",
+    "\\src\\lib"
+  ],
+  "SelectedNode": "\\src\\main.cc",
+  "PreviewInSolutionExplorer": false
+}
