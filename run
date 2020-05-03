@@ -1,7 +1,0 @@
-#/bin/bash
-
-nasm -f elf -g -o main-nasm.o main-nasm.asm
-gcc task0.c main-nasm.o -o task0.o -m32 -g -c
-gcc task0.o main-nasm.o -o task0 -m32 -g 
-echo "COMPILATION FINISHED!"
-./task0
