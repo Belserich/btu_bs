@@ -57,7 +57,7 @@ public:
 	  * so werden die Defaultwerte (Vordergrund weiss, Hintergrund schwarz, Blinken deaktiviert)
 	  * verwendet.
 	  */
-	CgaAttr(Color fg=WHITE, Color bg=BLACK, bool blink=false)
+	CgaAttr(Color fg = WHITE, Color bg = BLACK, bool blink = false)
 	{
 		setForeground(fg);
 		setBackground(bg);
