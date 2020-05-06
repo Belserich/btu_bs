@@ -60,19 +60,19 @@ public:
     };
 
 	// Loeschen des Bildschirms
-    // Offset0 + i * 2 - 2  -> 1.Byte
-    // Offset0 + i * 2 - 1  -> 2.Byte
+    // Offset0 + i * 2      -> 1.Byte
+    // Offset0 + i * 2 + 1  -> 2.Byte
 	void clear ()
     {
         CgaAttr cAttr(Color BLACK, Color BLACK, false);
         int j = 1;
         
-        for(int i = 1; i <= 80; i++)
+        for(int i = 0; i <= 79; i++)
         {
             setCursor(i, j);
             setAttr(cAttr);
             
-            if(i == 80) 
+            if(i == 79) 
             {
                 i = 1;
                 j++;
@@ -91,12 +91,12 @@ public:
     {
         int j = 2;
         
-        for(int i = 1; i <= 80; i++)
+        for(int i = 0; i <= 79; i++)
         {
             setCursor(i, j - 1);
             setAttr(getCursor(i, j));
             
-            if(i == 80)
+            if(i == 79)
             {
                 i = 1;
                 j++;
@@ -134,7 +134,6 @@ public:
     
 	void getCursor(int& column, int& row)
     {
-        data.inb(Ports P1);
         data.inb(Ports P2);
     };
 
@@ -151,7 +150,8 @@ public:
     	// Darstellung mit aktuellen Bildschirmattributen
 	void show(char ch)
 	{
-        
+        index.outb(Ports P1, Cursor I2) = ch;
+        data.outb(Ports P2, Cursor I1) = this->attr;
 	}
 
 
