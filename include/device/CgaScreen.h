@@ -40,124 +40,47 @@ private:
 public:
 	// Die Bildschirmdimensionen
 	enum Screen {
-		ROWS = 25,
-		COLUMNS = 80
+		Rows = 25,
+		Columns = 80
 	};
 
 	// Standardattribute waehlen und Bildschirm loeschen
     /* attr2 initialisiert, keine Parameter übergeben, also Defaultwerte verwendet */
-	CgaScreen()    // default constructor
-    {
-        CgaAttr attr2;
-        clear();
-    };
+	CgaScreen();    // default constructor
 
 	// Angegebene Attribute setzen und Bildschirm loeschen
-	explicit CgaScreen(CgaAttr attr)
-    {
-        setAttr(attr);
-        clear();
-    };
+	explicit CgaScreen(CgaAttr attr);
 
 	// Loeschen des Bildschirms
     // Offset0 + i * 2      -> 1.Byte
     // Offset0 + i * 2 + 1  -> 2.Byte
-	void clear ()
-    {
-        CgaAttr cAttr(Color BLACK, Color BLACK, false);
-        int j = 1;
-        
-        for(int i = 0; i <= 79; i++)
-        {
-            setCursor(i, j);
-            setAttr(cAttr);
-            
-            if(i == 79) 
-            {
-                i = 1;
-                j++;
-            } 
-            
-            if(j == 26)
-            {
-                i = 81;
-            }
-            
-        }
-    };
+	void clear ();
 
 	// Verschieben des Bildschirms um eine Zeile
-	void scroll()
-    {
-        int j = 2;
-        
-        for(int i = 0; i <= 79; i++)
-        {
-            setCursor(i, j - 1);
-            setAttr(getCursor(i, j));
-            
-            if(i == 79)
-            {
-                i = 1;
-                j++;
-            }
-            
-            if(j == 26)
-            {
-                i = 81;
-            }
-        }
-    };
+	void scroll();
 
 	// Setzen/Lesen der globalen Bildschirmattribute
     // Ab hier werden References genutzt, also am Typ hängt ein &
-	void setAttr(const CgaAttr& attr)
-	{
-        this->attr = attr;
-	}
+	void setAttr(const CgaAttr& attr);
 
-	void getAttr(CgaAttr& attr)
-	{
-        attr = this->attr;
-	}
+	void getAttr(CgaAttr& attr);
 
 	// Setzen/Lesen des HW-Cursors
-	void setCursor(int column, int row)
-    {
-        int adresse = row * COLUMNS + column;
-       
-        index.outb(Ports P1, Cursor I2);
-        data.outb(Ports P2, adresse & 0xff);    // Low Byte
-        index.outb(Ports P1, Cursor I1);
-        data.outb(Ports P2, (adresse >> 8) & 0xff); //High Byte
-    };
+	void setCursor(int column, int row);
     
-	void getCursor(int& column, int& row)
-    {
-        data.inb(Ports P2);
-    };
-
+	void getCursor(int& column, int& row);
 
 	// Anzeigen von c an aktueller Cursorposition
-    	// Darstellung mit angegebenen Bildschirmattributen
-	void show(char ch, const CgaAttr& attr)
-    {
-        index.outb(Ports P1, Cursor I2) = ch;
-        data.outb(Ports P2, Cursor I1) = attr;
-    };
+	// Darstellung mit angegebenen Bildschirmattributen
+	void show(char ch, const CgaAttr& attr);
 
 	// Anzeigen von c an aktueller Cursorposition
     	// Darstellung mit aktuellen Bildschirmattributen
-	void show(char ch)
-	{
-        index.outb(Ports P1, Cursor I2) = ch;
-        data.outb(Ports P2, Cursor I1) = this->attr;
-	}
-
+	void show(char ch);
 
 protected:
 
-	CgaAttr attr;
+	CgaAttr mAttr;
 	IOPort8 index;
 	IOPort8 data;
 	CgaChar* screen;

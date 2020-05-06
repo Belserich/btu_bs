@@ -38,10 +38,10 @@ SYSTEM_C = \
 
 SYSTEM_CC = \
 	$(INITFINI) \
-	main.cc \
 	device/CgaChannel.cc \
 	device/CgaScreen.cc \
-	io/PrintStream.cc
+	io/PrintStream.cc \
+	main.cc
 
 
 ##############################################################################

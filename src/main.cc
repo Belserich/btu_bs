@@ -1,6 +1,5 @@
-#include "device/CgaChannel.h"
 //#include "io/PrintStream.h"
-#include <stdio.h>
+#include <device/CgaChannel.h>
 
 CgaChannel cga;		// unser CGA-Ausgabekanal
 //PrintStream out(cga);	// unseren PrintStream mit Ausgabekanal verknuepfen
@@ -8,6 +7,8 @@ CgaChannel cga;		// unser CGA-Ausgabekanal
 int main()
 {
 	cga.blueScreen();
+	cga.setCursor(0, 0);
+	cga.write("HAI\rhsi\nHAI\b\b\b\b", 15);
 	//out.println("Hello World");
 	//
 	//for(int i = 0; i < 1000; i++) {
