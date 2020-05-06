@@ -56,4 +56,7 @@ dkms.conf
 CppProperties.json
 bin/costubs.iso
 bin/system
+compile_commands.json
 Session.vim
+.idea/
+bin/bochsout.txt
