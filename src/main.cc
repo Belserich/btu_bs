@@ -6,9 +6,10 @@ PrintStream out(cga);	// unseren PrintStream mit Ausgabekanal verknuepfen
 
 int main()
 {
-//	cga.blueScreen();
+	cga.blueScreen();
 //	cga.setCursor(0, 0);
 //	cga.write("HAI\rhsi\nHAI\b\b\b\b", 15);
+
 	out.print(0x054F, 16);
 	out.println();
 	out.print(0x0, 16);

@@ -62,13 +62,37 @@ int CgaChannel::write(const char* data, int size)
 void CgaChannel::blueScreen(const char *error)
 {
 	CgaAttr attr(CgaAttr::Color::WHITE, CgaAttr::Color::BLUE);
+	CgaAttr oldAttr;
+
+	getAttr(oldAttr);
+	setAttr(attr);
+
 	for (int col = 0; col < Columns; ++col)
 	{
 		for (int row = 0; row < Rows; ++row)
 		{
 			setCursor(col, row);
-			show(' ', attr);
-			// TODO Nachricht
+			show(' ');
 		}
 	}
+
+	const char* bsText1 = "(>_<)> FATALITY! <(>_<)";
+	const char* bsText2 = "^(>_<)^";
+	int size1, size2, size3;
+
+	for (size1 = 0; bsText1[size1] != '\0'; ++size1);
+	for (size2 = 0; bsText2[size2] != '\0'; ++size2);
+	for (size3 = 0; error[size3] != '\0'; ++size3);
+
+	setCursor(Columns / 2 - (size1 / 2), Rows / 2 - 1);
+	write(bsText1, size1);
+
+	setCursor(Columns / 2 - (size2 / 2), Rows / 2 - 2);
+	write(bsText2, size2);
+
+	setCursor(Columns / 2 - (size3 / 2), Rows / 2 + 1);
+	write(error, size3);
+
+	setCursor(0, 0);
+	setAttr(oldAttr);
 }
