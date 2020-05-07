@@ -17,7 +17,6 @@ int CgaChannel::write(const char* data, int size)
 	{
 		if (data[i] == '\n') // neue Zeile
 		{
-			col = 0;
 			row += 1;
 		}
 		else if (data[i] == '\r') // Cursorruecklauf
