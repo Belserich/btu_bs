@@ -57,11 +57,11 @@ int main()
 	int i = 5;
 	int* j = &i;
 	out.print(j);
-
-	out.println();
-	out.println("fahg");
-	out.println("safk");
-	out.println();
+	out.println("jdfgj");
+	out.println("jdfgj2");
+	out.println("jdsdfafgj");
+	out.println("jdsdfafgj");
+	out.print("j\b\b");
 
 //	for(int i = 0; i < 1000; i++) {
 //		out.print("Dezimal ");

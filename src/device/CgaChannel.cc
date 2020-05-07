@@ -62,6 +62,7 @@ int CgaChannel::write(const char* data, int size)
 		{
 			scroll();
 			row -= 1;
+			col = 0;
 		}
 
 		setCursor(col, row);

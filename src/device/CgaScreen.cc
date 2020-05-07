@@ -51,18 +51,22 @@ void CgaScreen::scroll()
 	}
 
 	// leere die letzte Zeile
-	screen = (CgaChar*) (Pages * Rows - 1);
-	for (int col = 0; col < Columns; col++)
-	{
-		screen->setChar('\0');
-		screen++;
-	}
+//	int off = (Rows - 1) * Columns;
+//	screen = (CgaChar*) (Offset0 + off);
+//	CgaAttr attr;
+//
+//	for (int col = 0; col < Columns; col++)
+//	{
+//		screen->setChar('\0');
+//		screen->setAttr(attr);
+//		screen++;
+//	}
 
 	int row, col;
 	getCursor(col, row);
 	if (row > 0)
 	{
-		setCursor(col, row - 1);
+		setCursor(0, Rows - 1);
 	}
 }
 

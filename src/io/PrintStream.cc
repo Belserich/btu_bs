@@ -32,7 +32,6 @@ void PrintStream::println(const char* str)
 void PrintStream::println()
 {
 	channel.write('\n');
-	channel.write('\r');
 }
 
 void PrintStream::print(int x, int base)
