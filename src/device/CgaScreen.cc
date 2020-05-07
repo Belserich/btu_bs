@@ -18,47 +18,52 @@ CgaScreen::CgaScreen(CgaAttr attr)
 
 void CgaScreen::clear()
 {
-//	CgaAttr cAttr(CgaAttr::Color::BLACK, CgaAttr::Color::BLACK, false);
-//	int j = 1;
-//
-//	for(int i = 0; i <= 79; i++)
-//	{
-//		setCursor(i, j);
-//		setAttr(cAttr);
-//
-//		if(i == 79)
-//		{
-//			i = 1;
-//			j++;
-//		}
-//
-//		if(j == 26)
-//		{
-//			i = 81;
-//		}
-//	}
+	// leert den gesamten Video RAM
+	for (int row = 0; row < Rows * Pages; ++row)
+	{
+		for (int col = 0; col < Columns; ++col)
+		{
+			setCursor(col, row);
+			show('\0');
+		}
+	}
+
+	setCursor(0, 0);
 }
 
 void CgaScreen::scroll()
 {
-//	int j = 2;
-//
-//	for(int i = 0; i <= 79; i++)
-//	{
-//		setCursor(i, j - 1);
-//		setAttr(getCursor(i, j));
-//
-//		if(i == 79)
-//		{
-//			i = 1;
-//			j++;
-//		}
-//
-//		if(j == 26)
-//		{
-//			i = 81;
-//		}
-//	}
+	CgaChar* dest;
+
+	// scrolle den Bildschirm und alles darunter im Video RAM
+	for (int row = 1; row < Rows * Pages; ++row)
+	{
+		for (int col = 0; col < Columns; ++col)
+		{
+			int off1 = 2 * ((row - 1) * Columns + col);
+			int off2 = 2 * (row * Columns + col);
+			dest = (CgaChar*) (Offset0 + off1);
+			screen = (CgaChar*) (Offset0 + off2);
+
+			dest->setChar(screen->getChar());
+			dest->setAttr(screen->getAttr());
+		}
+	}
+
+	// leere die letzte Zeile
+	screen = (CgaChar*) (Pages * Rows - 1);
+	for (int col = 0; col < Columns; col++)
+	{
+		screen->setChar('\0');
+		screen++;
+	}
+
+	int row, col;
+	getCursor(col, row);
+	if (row > 0)
+	{
+		setCursor(col, row - 1);
+	}
 }
 
 void CgaScreen::setAttr(const CgaAttr &attr)
@@ -76,6 +81,10 @@ void CgaScreen::setCursor(int column, int row)
 	if (column < 0 || column >= Columns)
 	{
 		column = 0;
+	}
+
+	if (row < 0 || row >= Rows * Pages)
+	{
 		row = 0;
 	}
 

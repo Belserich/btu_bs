@@ -30,18 +30,19 @@ private:
         I1 = 14,
         I2 = 15
 	};
-    
-	// Die Adresse des Video RAMs
-    // Offset 0 im Video-RAM wird mit (hexadezimal) b8000 adressiert
-	enum Video  {
-        Offset0 = 0xb8000
-	};
 
 public:
 	// Die Bildschirmdimensionen
 	enum Screen {
 		Rows = 25,
-		Columns = 80
+		Columns = 80,
+		Pages = (16 * 1024 / 2) / (Rows * Columns) // Das Video RAM fuer CGA umfasst 16Kibi. Hier wird die Anzahl ganzer 80x25 Bildschirme berechnet, auf die sich diese Anzahl Bytes aufteilen laesst
+	};
+
+	// Die Adresse des Video RAMs
+	// Offset 0 im Video-RAM wird mit (hexadezimal) b8000 adressiert
+	enum Video  {
+		Offset0 = 0xb8000
 	};
 
 	// Standardattribute waehlen und Bildschirm loeschen

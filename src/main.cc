@@ -6,10 +6,7 @@ PrintStream out(cga);	// unseren PrintStream mit Ausgabekanal verknuepfen
 
 int main()
 {
-	cga.blueScreen();
-//	cga.setCursor(0, 0);
-//	cga.write("HAI\rhsi\nHAI\b\b\b\b", 15);
-
+	out.print(CgaScreen::Pages, 10);
 	out.print(0x054F, 16);
 	out.println();
 	out.print(0x0, 16);
@@ -60,6 +57,11 @@ int main()
 	int i = 5;
 	int* j = &i;
 	out.print(j);
+
+	out.println();
+	out.println("fahg");
+	out.println("safk");
+	out.println();
 
 //	for(int i = 0; i < 1000; i++) {
 //		out.print("Dezimal ");

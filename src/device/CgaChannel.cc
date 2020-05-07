@@ -15,32 +15,36 @@ int CgaChannel::write(const char* data, int size)
 
 	for (int i = 0; i < size; ++i)
 	{
-		if (data[i] == '\n') // neue Zeile
+		if (data[i] < 32) // Steuerzeichen
 		{
-			row += 1;
-		}
-		else if (data[i] == '\r') // Cursorruecklauf
-		{
-			col = 0;
-		}
-		else if (data[i] == '\b') // Zeichen loeschen
-		{
-			col -= 1;
-			if (col < 0) // Cursor ist am linken Rand
+			if (data[i] == '\n') // neue Zeile
 			{
-				row -= 1;
-				col = Columns - 1;
-
-				if (row < 0) // Cursor am oberen linken Rand
-				{
-					// verwerfe Zeichen
-					row = 0;
-					col = 0;
-				}
+				row += 1;
+				col = 0;
 			}
+			else if (data[i] == '\r') // Cursorruecklauf
+			{
+				col = 0;
+			}
+			else if (data[i] == '\b') // Zeichen loeschen
+			{
+				col -= 1;
+				if (col < 0) // Cursor ist am linken Rand
+				{
+					row -= 1;
+					col = Columns - 1;
 
-			setCursor(col, row);
-			show(' ');
+					if (row < 0) // Cursor am oberen linken Rand
+					{
+						// verwerfe Zeichen
+						row = 0;
+						col = 0;
+					}
+				}
+
+				setCursor(col, row);
+				show('\0');
+			}
 		}
 		else
 		{
@@ -50,9 +54,16 @@ int CgaChannel::write(const char* data, int size)
 			if (col >= Columns)
 			{
 				col = 0;
-				row += 1; // TODO fragil, was wenn row out of bounds?
+				row += 1;
 			}
 		}
+
+		while (row >= Rows)
+		{
+			scroll();
+			row -= 1;
+		}
+
 		setCursor(col, row);
 	}
 
@@ -87,11 +98,13 @@ void CgaChannel::blueScreen(const char *error)
 	setCursor(Columns / 2 - (size1 / 2), Rows / 2 - 1);
 	write(bsText1, size1);
 
-	setCursor(Columns / 2 - (size2 / 2), Rows / 2 - 2);
-	write(bsText2, size2);
-
 	setCursor(Columns / 2 - (size3 / 2), Rows / 2 + 1);
 	write(error, size3);
+
+	attr.setBlinkState(true);
+	setAttr(attr);
+	setCursor(Columns / 2 - (size2 / 2), Rows / 2 - 2);
+	write(bsText2, size2);
 
 	setCursor(0, 0);
 	setAttr(oldAttr);
