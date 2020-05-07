@@ -17,7 +17,9 @@ int main()
 	out.println();
 	out.print(-0x04583, 16);
 	out.println();
-	out.print(0xDEADBEE, 16);
+	out.print((unsigned) 0xDEADBEEF, 16);
+	out.println();
+	out.print(0xBADEAFFE, 16);
 	out.println();
 
 	out.print(1000, 10);
@@ -34,6 +36,10 @@ int main()
 	out.println();
 	out.print(-34578, 10);
 	out.println();
+	out.print((unsigned) 2147483648, 10);
+	out.println();
+	out.print(-2147483647, 10);
+	out.println();
 
 	out.print(0b1, 2);
 	out.println();
@@ -41,10 +47,18 @@ int main()
 	out.println();
 	out.print(0b00, 2);
 	out.println();
+	out.print((unsigned) -0b1001, 2);
+	out.println();
 	out.print(-0b1001, 2);
+	out.println();
+	out.print((unsigned) 0b10001000100010001000100010001000, 2);
 	out.println();
 	out.print(-0b000001110, 2);
 	out.println();
+
+	int i = 5;
+	int* j = &i;
+	out.print(j);
 
 //	for(int i = 0; i < 1000; i++) {
 //		out.print("Dezimal ");

@@ -37,19 +37,23 @@ void PrintStream::println()
 
 void PrintStream::print(int x, int base)
 {
+	if (x < 0)
+	{
+		print("-");
+		x = -x; // konvertiert eine negative Zahl im Zweierkomplement in ihre positive Darstellung
+	}
+	print((unsigned) x, base);
+}
+
+void PrintStream::print(unsigned x, int base)
+{
 	if (base == BINARY)
 	{
 		bool hasOne = false; // wird true nach Auffinden der ersten Eins
 
-		if (x < 0)
-		{
-			print("-0b");
-			x = -x;
-		}
-		else print("0b");
-
+		print("0b");
 		// i ist der shift offset (30, bei 32-bit ints), wir beginnen bei 30 (vorletzter Index im Bitstring der Zahl), da der letzte das Vorzeichen angibt
-		for (int i = sizeof(int) * 8 - 2; i >= 0; --i)
+		for (int i = sizeof(int) * 8 - 1; i >= 0; --i) // geht den Bitstring von links nach rechts ab
 		{
 			int currBit = (x >> i) & 1; // schiebt das zu betrachtende Bit an die erste Position und loescht mit & 1 alle anderen Positionen
 
@@ -62,7 +66,7 @@ void PrintStream::print(int x, int base)
 				}
 				print("1");
 			}
-			else if (hasOne || (i == 0 && !hasOne)) // currBit = 0 oder keine Eins im Bitstring (in diesem Fall ist die Zahl Null und mind. eine Null wird geschrieben
+			else if (hasOne || i == 0) // currBit = 0 oder keine Eins im Bitstring (in diesem Fall ist die Zahl Null und mind. eine Null wird geschrieben
 			{
 				print("0");
 			}
@@ -72,19 +76,13 @@ void PrintStream::print(int x, int base)
 	{
 		bool has = false;
 
-		if (x < 0)
-		{
-			print("-");
-			x = -x; // konvertiert eine negative Zahl im Zweierkomplement in ihre positive Darstellung
-		}
-
 		// im Folgenden betrachten wir jede einzelne Zahl (des Dezimalstrings) von links nach rechts
-		for (int i = 9; i >= 0; --i) // ist die Zehnerpotenz durch die wir den Dezimalwert teilen
+		for (int i = 9 /* TODO funktioniert so nur fuer 32-bit ints */; i >= 0; --i) // i ist die Zehnerpotenz durch die wir den Dezimalwert teilen.
 		{
-			int num = 1;
+			unsigned num = 1;
 			for (int j = 0; j < i; ++j) num *= 10; // berechnet 10^i
 
-			int quot = x / num;
+			unsigned quot = x / num;
 
 			if (quot > 0)
 			{
@@ -105,17 +103,11 @@ void PrintStream::print(int x, int base)
 		// hier das selbe Spiel wie bei BINARY
 		bool has = false; // wird true nach Auffinden der ersten Zahl ungleich Null
 
-		if (x < 0)
-		{
-			print("-0x");
-			x = -x; // konvertiert eine negative Zahl im Zweierkomplement in ihre positive Darstellung
-		}
-		else print("0x");
-
+		print("0x");
 		// i ist der Offset-Multiplikator fuers spaetere bit shifting. Fuer 32bit ints geht i vom 8. Halbbyte bis zum 1. (Indizes 7-0)
 		for (int i = sizeof(int) * 2 - 1; i >= 0; --i)
 		{
-			int currNib = (x >> i * 4) & 0xf; // schiebt das zu betrachtende Halbbyte (Nibble) an die erste Position und loescht mit & 0xf alle anderen Positionen
+			int currNib = (x >> (i * 4)) & 0xf; // schiebt das zu betrachtende Halbbyte (Nibble) an die erste Position und loescht mit & 0xf alle anderen Positionen
 
 			// currBit kann nur einen von 16 Werten annehmen
 			if (currNib > 0)
@@ -139,13 +131,7 @@ void PrintStream::print(int x, int base)
 	}
 }
 
-void PrintStream::print(unsigned int x, int base)
-{
-
-}
-
 void PrintStream::print(void* p)
 {
-//	int** addr = (int**) &p;
-//	print(addr, HEX);
+	print((unsigned) p, 16);
 }
