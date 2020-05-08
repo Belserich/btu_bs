@@ -26,4 +26,4 @@ clock: sync=realtime, time0=1
 #keyboard_mapping:enabled=1, map=/usr/share/bochs/keymaps/sdl-pc-de.map
 
 # newer bochs versions:
-keyboard: type=at, keymap=/usr/share/bochs/keymaps/sdl2-pc-de.map
+#keyboard: type=at, keymap=/usr/share/bochs/keymaps/sdl2-pc-de.map
