@@ -1,0 +1,115 @@
+[
+    {
+        "arguments": [
+            "g++",
+            "-c",
+            "-m32",
+            "-fno-stack-protector",
+            "-DLINUX",
+            "-Wall",
+            "-fno-rtti",
+            "-fno-exceptions",
+            "-I../include",
+            "-I../machine",
+            "-o",
+            "CgaScreen.o",
+            "../src/device/CgaScreen.cc"
+        ],
+        "directory": "/home/belserich/CLionProjects/btu_bs/bin",
+        "file": "../src/device/CgaScreen.cc"
+    },
+    {
+        "arguments": [
+            "g++",
+            "-c",
+            "-m32",
+            "-fno-stack-protector",
+            "-DLINUX",
+            "-Wall",
+            "-fno-rtti",
+            "-fno-exceptions",
+            "-I../include",
+            "-I../machine",
+            "-o",
+            "finit.o",
+            "../src/lib/finit.cc"
+        ],
+        "directory": "/home/belserich/CLionProjects/btu_bs/bin",
+        "file": "../src/lib/finit.cc"
+    },
+    {
+        "arguments": [
+            "g++",
+            "-c",
+            "-m32",
+            "-fno-stack-protector",
+            "-DLINUX",
+            "-Wall",
+            "-fno-rtti",
+            "-fno-exceptions",
+            "-I../include",
+            "-I../machine",
+            "-o",
+            "main.o",
+            "../src/main.cc"
+        ],
+        "directory": "/home/belserich/CLionProjects/btu_bs/bin",
+        "file": "../src/main.cc"
+    },
+    {
+        "arguments": [
+            "gcc",
+            "-c",
+            "-m32",
+            "-fno-stack-protector",
+            "-DLINUX",
+            "-Wall",
+            "-fno-exceptions",
+            "-I../include",
+            "-I../machine",
+            "-o",
+            "tools.o",
+            "../src/lib/tools.c"
+        ],
+        "directory": "/home/belserich/CLionProjects/btu_bs/bin",
+        "file": "../src/lib/tools.c"
+    },
+    {
+        "arguments": [
+            "g++",
+            "-c",
+            "-m32",
+            "-fno-stack-protector",
+            "-DLINUX",
+            "-Wall",
+            "-fno-rtti",
+            "-fno-exceptions",
+            "-I../include",
+            "-I../machine",
+            "-o",
+            "PrintStream.o",
+            "../src/io/PrintStream.cc"
+        ],
+        "directory": "/home/belserich/CLionProjects/btu_bs/bin",
+        "file": "../src/io/PrintStream.cc"
+    },
+    {
+        "arguments": [
+            "g++",
+            "-c",
+            "-m32",
+            "-fno-stack-protector",
+            "-DLINUX",
+            "-Wall",
+            "-fno-rtti",
+            "-fno-exceptions",
+            "-I../include",
+            "-I../machine",
+            "-o",
+            "CgaChannel.o",
+            "../src/device/CgaChannel.cc"
+        ],
+        "directory": "/home/belserich/CLionProjects/btu_bs/bin",
+        "file": "../src/device/CgaChannel.cc"
+    }
+]
