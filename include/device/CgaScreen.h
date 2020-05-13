@@ -35,8 +35,7 @@ public:
 	// Die Bildschirmdimensionen
 	enum Screen {
 		Rows = 25,
-		Columns = 80,
-		Pages = (16 * 1024 / 2) / (Rows * Columns) // Das Video RAM fuer CGA umfasst 16Kibi. Hier wird die Anzahl ganzer 80x25 Bildschirme berechnet, auf die sich diese Anzahl Bytes aufteilen laesst
+		Columns = 80
 	};
 
 	// Die Adresse des Video RAMs

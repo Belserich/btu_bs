@@ -1,25 +1,30 @@
 #include <device/CgaScreen.h>
+#include "lib/tools.h"
 
 CgaScreen::CgaScreen()
-	: index(Ports::P1),
+	: mAttr(),
+	  index(Ports::P1),
 	  data(Ports::P2),
-	  mAttr()
+	  screen((CgaChar*) Offset0)
 {
 	clear();
 }
 
 CgaScreen::CgaScreen(CgaAttr attr)
-	: index(Ports::P1),
+	: mAttr(attr),
+	  index(Ports::P1),
 	  data(Ports::P2),
-	  mAttr(attr)
+	  screen((CgaChar*) Offset0)
 {
 	clear();
 }
 
 void CgaScreen::clear()
 {
+	setAttr(CgaAttr());
+
 	// leert den gesamten Video RAM
-	for (int row = 0; row < Rows * Pages; ++row)
+	for (int row = 0; row < Rows; ++row)
 	{
 		for (int col = 0; col < Columns; ++col)
 		{
@@ -33,40 +38,16 @@ void CgaScreen::clear()
 
 void CgaScreen::scroll()
 {
-	CgaChar* dest;
-
 	// scrolle den Bildschirm und alles darunter im Video RAM
-	for (int row = 1; row < Rows * Pages; ++row)
-	{
-		for (int col = 0; col < Columns; ++col)
-		{
-			int off1 = 2 * ((row - 1) * Columns + col);
-			int off2 = 2 * (row * Columns + col);
-			dest = (CgaChar*) (Offset0 + off1);
-			screen = (CgaChar*) (Offset0 + off2);
-
-			dest->setChar(screen->getChar());
-			dest->setAttr(screen->getAttr());
-		}
-	}
+	memcpy((void*) Video::Offset0, (void*) (Video::Offset0 + Columns * 2), 2 * Columns * Rows);
 
 	// leere die letzte Zeile
-//	int off = (Rows - 1) * Columns;
-//	screen = (CgaChar*) (Offset0 + off);
-//	CgaAttr attr;
-//
-//	for (int col = 0; col < Columns; col++)
-//	{
-//		screen->setChar('\0');
-//		screen->setAttr(attr);
-//		screen++;
-//	}
 
 	int row, col;
 	getCursor(col, row);
 	if (row > 0)
 	{
-		setCursor(0, Rows - 1);
+		setCursor(0, row - 1);
 	}
 }
 
@@ -87,7 +68,7 @@ void CgaScreen::setCursor(int column, int row)
 		column = 0;
 	}
 
-	if (row < 0 || row >= Rows * Pages)
+	if (row < 0 || row >= Rows)
 	{
 		row = 0;
 	}

@@ -29,7 +29,7 @@ private:
 
 
 public:
-	/** 	Diese Aufzählung enthält die CGA-Farben als Farbkonstanten
+	/** 	Diese Aufzï¿½hlung enthï¿½lt die CGA-Farben als Farbkonstanten
 	 *	Tragt hier *alle* CGA Farben mit den richtigen Werten ein
 	 */
 	enum Color {
@@ -52,7 +52,7 @@ public:
 	};
 
 
-	/** Konstruktor. Erzeugt ein CgaAttr-Objekt mit den uebergebenen Werten für
+	/** Konstruktor. Erzeugt ein CgaAttr-Objekt mit den uebergebenen Werten fï¿½r
 	  * Vorder- und Hintergrundfarbe. Werden keine Parameter uebergeben,
 	  * so werden die Defaultwerte (Vordergrund weiss, Hintergrund schwarz, Blinken deaktiviert)
 	  * verwendet.
@@ -66,31 +66,31 @@ public:
 
 	/* setzen der Schriftfarbe
 	* col muss nicht geshiftet werden, Form ist bereits richtig: 0b 0000 xxxx
-	* mit der Farbe (col) ändert man die ersten 4 Bits
+	* mit der Farbe (col) ï¿½ndert man die ersten 4 Bits
 	* ((~ForegroundColor) & this->x) sind die restlichen Bits des Attributs x die nicht verloren gehen sollen
 	*/
 	void setForeground(Color col)
 	{
-		this->x = col | ((~ForegroundColor) & this->x);
+		x = col | ((~ForegroundColor) & this->x);
 	}
 
 	/*
 	* setzen der Hintergrundfarbe
-	* shiften um 4 Bits nach Links für die Form: 0b 0xxx 0000
+	* shiften um 4 Bits nach Links fï¿½r die Form: 0b 0xxx 0000
 	*/
 	void setBackground(Color col)
 	{
-		this->x = col<<4 | ((~BackgroundColor) & this-> x);
+		this->x = ((col<<4) & BackgroundColor) | ((~BackgroundColor) & this-> x);
 	}
 
 	/*
 	* setzen blinkender/nicht blinkender Text
-	* shiften um 7 Bits nach Links für die Form: 0b x000 0000
+	* shiften um 7 Bits nach Links fï¿½r die Form: 0b x000 0000
 	*/
 
 	void setBlinkState(bool blink)
 	{
-		this->x = blink<<7 | ((~Blink) & this-> x);
+		x = blink ? x | Blink : x & ~Blink;
 	}
 
 	// setzen aller Attribute
@@ -116,7 +116,7 @@ public:
 	// ermitteln ob Blink-Flag gesetzt ist
 	bool getBlinkState()
 	{
-		return bool((this->x & Blink) >> 7);
+		return (bool) (x >> 7);
 	}
 
 private:

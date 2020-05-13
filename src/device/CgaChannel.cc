@@ -99,7 +99,7 @@ void CgaChannel::blueScreen(const char *error)
 	setCursor(Columns / 2 - (size1 / 2), Rows / 2 - 1);
 	write(bsText1, size1);
 
-	setCursor(Columns / 2 - (size3 / 2), Rows / 2 + 1);
+	setCursor(0, 0);
 	write(error, size3);
 
 	attr.setBlinkState(true);

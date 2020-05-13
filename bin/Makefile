@@ -35,13 +35,12 @@ MACHINE_S = \
 SYSTEM_C = \
 	lib/tools.c
 
-
 SYSTEM_CC = \
 	$(INITFINI) \
 	device/CgaChannel.cc \
 	device/CgaScreen.cc \
 	io/PrintStream.cc \
-	main.cc
+	main_test_1.cc
 
 
 ##############################################################################
