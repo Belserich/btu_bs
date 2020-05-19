@@ -30,7 +30,8 @@ STARTUP_S = \
 	boot/startup.asm
 
 MACHINE_S = \
-	io/ports.asm
+	io/ports.asm \
+	thread/switchContext.asm
 
 SYSTEM_C = \
 	lib/tools.c
@@ -40,7 +41,8 @@ SYSTEM_CC = \
 	device/CgaChannel.cc \
 	device/CgaScreen.cc \
 	io/PrintStream.cc \
-	main_test_1.cc
+	thread/Coroutine.cc \
+	mainCo.cc
 
 
 ##############################################################################

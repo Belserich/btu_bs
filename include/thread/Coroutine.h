@@ -4,7 +4,7 @@
 /*
  * Coroutine:
  * Diese Klasse implementiert Coroutinen, welche die Basis
- * für alle Arten von Prozessen in Co-Stubs sind.
+ * fï¿½r alle Arten von Prozessen in Co-Stubs sind.
  *
  *	Anmerkung: wir verwenden ein objektorientiertes
  *	Coroutinen-Modell, daher ist diese Klasse abstrakt.
@@ -15,12 +15,13 @@
  *
  */
 
-
 /* Diese Deklaration verweist auf die von Euch zu
  * implementierende Assemblerprozedur "switchContext".
  */
+#include <io/PrintStream.h>
+
 extern "C" {
-	void switchContext(void*& from, void*& to);
+	void switchContext(void* &from, void* &to);
 }
 /* switchContext hat die Aufgabe, die Kontrolle
  * vom Stack der Coroutine "from" auf den Stack der
@@ -39,14 +40,28 @@ extern "C" {
  * wir einfach eine "ret" Instruktion aus, die dazu fuehrt,
  * dass die Coroutine "to" an der Stelle weiterlaeuft,
  * an der sie das letzte mal "switchContext" aufgerufen hat.
- * Für Coroutinen die zum ersten mal aktiviert werden, muss
+ * Fï¿½r Coroutinen die zum ersten mal aktiviert werden, muss
  * deshalb ein Stackframe existieren, was gleich aussieht mit
  * dem einer Coroutine die "switchContext" aufgerufen hat.
  */
-
-
 class Coroutine {
 public:
+
+	struct Frame {
+
+		Frame(Coroutine* cptr)
+			: cptr(cptr)
+		{}
+
+		unsigned ebx = 0;
+		unsigned edi = 0;
+		unsigned esi = 0;
+		void* ebp = nullptr;
+		void(* coroutine)(Coroutine*) = startup;
+		void* nirwana = nullptr;
+		Coroutine* cptr;
+	};
+
 	/* Aufsetzen einer neuen Coroutine.
 	*/
 	Coroutine(void* tos = 0)
@@ -60,6 +75,16 @@ public:
 	void resume(Coroutine* next)
 	{
 		switchContext(this->sp, next->sp);
+		/**
+		 * push ebp
+		 * push next->sp
+		 * push this->sp
+		 * call switchContext
+		 * sub esp, 8
+		 * pop ebp
+		 *
+		 * ret
+		 */
 	}
 
 	/* Dies ist der Rumpf der Coroutine
@@ -93,9 +118,9 @@ private:
 	 */
 	void setup(void* tos);
 
-	void* sp; // Der gerettete Stackpointer
-
-
+	void* sp; // Stackpointer esp
 };
+
+
 
 #endif

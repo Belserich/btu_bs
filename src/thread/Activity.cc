@@ -4,12 +4,12 @@
 
 Activity::Activity(void *tos) : Coroutine(tos)
 {
-
+	wakeup();
 }
 
 Activity::Activity()
 {
-
+	wakeup();
 }
 
 Activity::~Activity()

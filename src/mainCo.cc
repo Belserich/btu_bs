@@ -69,6 +69,11 @@ unsigned stack1[1024];
 
 int main()
 {
+	out.print(stack0);
+	out.println();
+	out.print(&stack0[1024]);
+	out.println();
+
 	Hello anton("Anton", out); // anton benutzt den Stack von main
 	Hello berta("Berta", out, &stack0[1024]);
 	Hello caesar("Caesar", out, &stack1[1024]);

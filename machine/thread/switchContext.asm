@@ -18,10 +18,28 @@ csym switchContext
 ;
 ; C-Prototyp:
 ;
-;     void switchContext (void*& from, void*& to);
+;     void switchContext (void* &from, void* &to);
 ;
 
 switchContext:
-;	fuegt hier Euren Code ein!
+
+    push    ebp
+    mov     ebp, esp
+
+    push    esi
+    push    edi
+    push    ebx
+
+    mov     eax, [ebp+8]       ; eax := from
+    mov     [eax], esp          ; [eax] = [from] := esp
+    mov     eax, [ebp+12]
+    mov     esp, [eax]       ; esp := to
+
+    pop     ebx
+    pop     edi
+    pop     esi
+
+    pop     ebp
+
 	ret		; Ruecksprung zum Aufrufer
 

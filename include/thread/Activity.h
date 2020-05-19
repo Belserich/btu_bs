@@ -90,27 +90,27 @@ public:
 	// Ausf�hrungszustand abfragen.
 	bool isBlocked()
 	{
-		mState = BLOCKED;
+		return mState == BLOCKED;
 	}
 
 	bool isReady()
 	{
-		mState = READY;
+		return mState == READY;
 	}
 
 	bool isRunning()
 	{
-		mState = RUNNING;
+		return mState == RUNNING;
 	}
 
 	bool isZombie()
 	{
-		mState = ZOMBIE;
+		return mState == ZOMBIE;
 	}
 
 private:
 
-	State mState;
+	State mState = BLOCKED;
 };
 
 #endif
