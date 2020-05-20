@@ -13,6 +13,7 @@
 
 #include "lib/Queue.h"
 #include "thread/Schedulable.h"
+#include "Dispatcher.h"
 
 class Scheduler {
 public:
@@ -36,7 +37,6 @@ protected:
 
 	// Die Ready-Liste
 	Queue readylist;
-
 };
 
 #endif

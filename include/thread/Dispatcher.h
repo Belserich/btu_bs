@@ -17,7 +17,7 @@ class Dispatcher {
 public:
 	Dispatcher() 
 	{ 
-		running = 0; 
+		running = nullptr;
 	}
 
 	/* Definieren des ersten Prozesses.

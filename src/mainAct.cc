@@ -31,7 +31,7 @@ public:
 	~Hello()
 	{
 	}
-	
+
 	void body()
 	{
 		for(int i=0; i<=count; i++) {

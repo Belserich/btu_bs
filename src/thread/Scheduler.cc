@@ -1,16 +1,18 @@
+// belserich on 20.05.20
+
 #include "thread/Scheduler.h"
 
-// Einfuegen eines neuen Elements in die Ready-Liste.
-void Scheduler::schedule(Schedulable* sched) {
-    this -> readylist.enqueue(sched);           //Element hinten an die Queue angehängt
-};
+void Scheduler::schedule(Schedulable *sched)
+{
+	readylist.enqueue(sched);
+}
 
-// Entfernen eines Elements von der Ready-Liste.
-void Scheduler::remove(Schedulable* sched) {
-    this -> readylist.remove(sched);            // bestimmtes Element aus Queue entfernen
-};
+void Scheduler::remove(Schedulable *sched)
+{
+	readylist.remove(sched);
+}
 
-// Aktiviert das vorderste der Liste mittels activate.
-void Scheduler::reschedule() {
-    this -> activate((Schedulable*) readylist.dequeue()); // vorderstes Element ist readylist.dequeue
-};
+void Scheduler::reschedule()
+{
+	activate((Schedulable*) readylist.dequeue());
+}
