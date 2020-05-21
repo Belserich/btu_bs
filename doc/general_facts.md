@@ -1,4 +1,4 @@
-#Definitionen
+# Definitionen
 
 **Funktionssignatur** sind Name und Parameter einer Funktion (**Funktionskopf** sind Rueckgabewert plus Signatur).
 
@@ -40,7 +40,7 @@ char c[2] = {{'O'}, {'K'}};
 _Frage_: Was ist der Unterschied zwischen Definition und Initialisierung?  
 _Antwort_: Initialisierung bezieht sich auf die Aktion, welche vom Programm zur Laufzeit durchgefuehrt wird, waehrend die Definition sich auf die Darstellung der Funktion oder des initialen Wertes im Quellcode bezieht (man kann eine Funktion in C++ nach dieser Definition nicht instanziieren).
 
-#Sammelfakten   
+# Sammelfakten   
 _Nicht validiert und daher nur sinnbildlich zu verstehen._
 - in Assembler gehen saemtliche Schleifen oder Funktionsaufrufe auf jump-Befehl (`jmp` in nasm-Syntax) zurueck
 - Header Dateien enthalten Funktions- und Variablendeklarationen und werden inkludiert damit der Linker Funktionsaufrufe ihrer Deklaration zuordnen kann
