@@ -13,9 +13,9 @@ void Coroutine::startup(Coroutine *obj)
 
 void Coroutine::setup(void* tos)
 {
-	if (tos == nullptr)
+	if (tos == nullptr) // wird nur fuer anton, also diejenige Coroutine ausgefuehrt, die auf dem Hauptstack liegt
 	{
-		return;
+		return; // kein setup fuer anton
 	}
 
 	// 0000 1111 0000 0
@@ -26,8 +26,8 @@ void Coroutine::setup(void* tos)
 	//                ^tos
 	//           ^sp
 
-	this->sp = (void*) (((Frame*) tos) - 1); // -1 zieht vom Adresswert sizeof(Frame) ab; this->sp zeigt auf den tos - sizeof(Frame)
-	Frame* frame = ((Frame*) tos) - 1;
+	this->sp = (void*) (((Frame*) tos) - 1); // -1 zieht vom Adresswert sizeof(Frame) ab; this->sp zeigt auf (tos - sizeof(Frame))
+	Frame* frame = ((Frame*) tos) - 1; // die gleiche Rechnung wie ueber dieser Zeile
 	*frame = Frame(this);
 
 //	out2.print(this->sp);

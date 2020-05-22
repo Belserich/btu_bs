@@ -12,20 +12,20 @@ void ActivityScheduler::suspend()
 
 void ActivityScheduler::kill(Activity* activity)
 {
-	out.print("Toete Aktivitaet ");
-	out.print(activity->name());
+//	out.print("Toete Aktivitaet ");
+//	out.print(activity->name());
 
 	activity->changeTo(Activity::State::BLOCKED);
 	readylist.remove(activity);
 
 	Coroutine* co = activity;
-	if (co == active())
+	if (co == active()) // ist die zu toetende Coroutine gerade am Laufen?
 	{
-		out.println(" die gerade lief.");
-		reschedule();
+//		out.println(" die gerade lief.");
+		reschedule(); // neue Coroutine zum Laufen bringen
 	}
 
-	out.println();
+//	out.println();
 }
 
 void ActivityScheduler::exit()
@@ -36,9 +36,9 @@ void ActivityScheduler::exit()
 void ActivityScheduler::activate(Schedulable *to)
 {
 	Activity* oldRunning = (Activity*) active();
-	out.print("Lief gerade: ");
-	out.print(oldRunning->name());
-	out.println();
+//	out.print("Lief gerade: ");
+//	out.print(oldRunning->name());
+//	out.println();
 
 	if (!oldRunning->isBlocked() && !oldRunning->isZombie())
 	{
@@ -49,11 +49,11 @@ void ActivityScheduler::activate(Schedulable *to)
 	if (to != nullptr)
 	{
 		Activity* newRunning = (Activity*) to;
-		out.print(" Laeuft jetzt: ");
-		out.print(newRunning->name());
-		out.println();
+//		out.print(" Laeuft jetzt: ");
+//		out.print(newRunning->name());
+//		out.println();
 
 		newRunning->changeTo(Activity::RUNNING);
-		dispatch(newRunning);
+		dispatch(newRunning); // wechsle Coroutine
 	}
 }

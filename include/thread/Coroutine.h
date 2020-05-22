@@ -53,7 +53,7 @@ public:
 			: cptr(cptr)
 		{}
 
-		unsigned ebx = 0;
+		/*nach Coroutinenwechsel zeigt esp auf Instanzen von Frame im Speicher an diese Stelle ->*/ unsigned ebx = 0;
 		unsigned edi = 0;
 		unsigned esi = 0;
 		void* ebp = nullptr;
@@ -74,7 +74,7 @@ public:
 	 */
 	void resume(Coroutine* next)
 	{
-		switchContext(this->sp, next->sp);
+		switchContext(this->sp, next->sp); // uebergeben Zeiger auf alten und neuen Stackpointer (ja doppelt!)
 		/**
 		 * push ebp
 		 * push next->sp
