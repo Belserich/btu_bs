@@ -38,7 +38,7 @@ char c[2] = {{'O'}, {'K'}};
 ```
 
 _Frage_: Was ist der Unterschied zwischen Definition und Initialisierung?  
-_Antwort_: Initialisierung bezieht sich auf die Aktion, welche vom Programm zur Laufzeit durchgefuehrt wird, waehrend die Definition sich auf die Darstellung der Funktion oder des initialen Wertes im Quellcode bezieht (man kann eine Funktion in C++ nach dieser Definition nicht instanziieren).
+_Antwort_: Initialisierung bezieht sich auf die Aktion, welche vom Programm zur Laufzeit durchgefuehrt wird, waehrend die Definition sich auf die Darstellung der Funktion oder des initialen Wertes im Quellcode bezieht (man kann eine Funktion in C++ nach dieser Definition nicht initialisieren).
 
 # Sammelfakten   
 _Nicht validiert und daher nur sinnbildlich zu verstehen._
@@ -50,5 +50,12 @@ _Nicht validiert und daher nur sinnbildlich zu verstehen._
 - nichtfluechtige Register muessen von der aufgerufenden Prozedur am Ende wieder auf ihren Ursprungswert zurueckgesetzt werden
 - fluechtige Register duerfen in einer Prozedur beliebig ueberschrieben werden
 - Der Doppeltpunkt in der Klassendefinition steht fuer eine Vererbungsbeziehung (analog zu "extends" in Java)
+- Man kann von einer abstrakten Klasse keine Instanzen erzeugen
+- Eine Klasse wird automatisch abstrakt sobald die erste Funktion der Form `virtual <Rueckgabewert> <Name>(<Parameter>) = 0;` deklariert wurde
+- Es gibt keine Klassen die nicht abstrakt sind aber vereinzelte abstrakte Funktionen haben. 
+- `private`, `protected` und `public` sind Schluesselworter die die Sichtbarkeit zugehoeriger Variablen/Funtionen festlegen
+- befindet sich das Programm im Koerper eines Konstruktors muss eine zugehoerige Instanz bereits existieren
+- Um eine Klasse zu instanziieren, muss diese jede ihrer enthaltenen Variablen instanziieren können. 
+
 
 TODO wird Programmstack bei Programmende mit Nullen gefuellt?

@@ -1,7 +1,6 @@
 // Testprogramm fuer Coroutinen
 
 #include "device/CgaChannel.h"
-#include "io/PrintStream.h"
 #include "thread/Coroutine.h"
 
 // Eine Coroutinen-Klasse
@@ -67,6 +66,15 @@ PrintStream out(cga);   // unseren PrintStream mit Ausgabekanal verknuepfen
 unsigned stack0[1024];
 unsigned stack1[1024];
 
+/*
+Name	Adresse
+fun1 	0x0
+fun2 	0x1
+fun		0x100
+*/
+
+//int fun(); // jmp 0x100
+
 int main()
 {
 	out.print(stack0);
@@ -86,3 +94,12 @@ int main()
 	// los geht's
 	anton.body();
 }
+
+// 0x100
+//int fun() {
+//
+//}
+//
+//int y() {
+//	fun(); // jmp 0x100
+//}

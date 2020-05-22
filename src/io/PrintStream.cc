@@ -52,7 +52,7 @@ void PrintStream::print(unsigned x, int base)
 
 		print("0b");
 		// i ist der shift offset (30, bei 32-bit ints), wir beginnen bei 30 (vorletzter Index im Bitstring der Zahl), da der letzte das Vorzeichen angibt
-		for (int i = sizeof(int) * 8 - 1; i >= 0; --i) // geht den Bitstring von links nach rechts ab
+		for (int i = sizeof(int) * 8 - 2; i >= 0; --i) // geht den Bitstring von links nach rechts ab
 		{
 			int currBit = (x >> i) & 1; // schiebt das zu betrachtende Bit an die erste Position und loescht mit & 1 alle anderen Positionen
 
@@ -73,6 +73,14 @@ void PrintStream::print(unsigned x, int base)
 	}
 	else if (base == DECIMAL)
 	{
+		// 9845 : 1000 = 9
+		// 9845 - 9 * 1000 = 845
+		// 845 : 100 = 8
+		// 845 - 8 * 100 = 45
+		// 45 : 10 = 4
+		// 45 - 4 * 10 = 5
+		// 5 : 1 = 5
+
 		bool has = false;
 
 		// im Folgenden betrachten wir jede einzelne Zahl (des Dezimalstrings) von links nach rechts

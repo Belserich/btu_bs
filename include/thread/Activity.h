@@ -16,7 +16,7 @@
 #include "thread/Schedulable.h"
 #include "thread/Coroutine.h"
 
-class Activity: public Schedulable, public Coroutine {
+class Activity : public Schedulable, public Coroutine {
 public:
 	/* Die logischen Ausfuehrungszustaende
 	 * fuer diese Aktivitaet
@@ -33,7 +33,7 @@ public:
 	 * der abgeleiteten Klasse abgearbeitet ist. Die Aktivierung
 	 * erfolgt von der abgeleiteten Klasse mittels "wakeup".
 	*/
-	Activity(void* tos);
+	Activity(const char* name, void* tos);
 
 	/* Verpacken des aktuellen Kontrollflusses als Thread.
 	 * Wird nur f�r den Hauptkontrollfluss "main" ben�tigt.
@@ -42,7 +42,7 @@ public:
 	 * Coroutine abstrakt ist. Bei Bedarf muss "body" direkt
 	 * aufgerufen werden.
 	 */
-	Activity();
+	Activity(const char* name);
 
 	/* Im Destruktor muss ein explizites Terminieren dieser Aktivitaet erfolgen.
 	 * Das muss geschehen, da aufgrund der Aufrufreihenfolge von
@@ -76,7 +76,6 @@ public:
 	 */
 	void join();
 
-
 	// Folgende Methoden d�rfen "inline" implementiert werden
 
 	/* �ndern des Ausf�hrungszustandes. Diese Methode sollte nur vom
@@ -108,9 +107,17 @@ public:
 		return mState == ZOMBIE;
 	}
 
+	const char* name()
+	{
+		return mName;
+	}
+
 private:
 
 	State mState = BLOCKED;
+	Activity* parent = nullptr;
+	const char* mName;
+	bool exited = false;
 };
 
 #endif

@@ -21,9 +21,19 @@ private:
 
 	// Die I/O-Ports des Grafikcontrollers
 	enum Ports  {
-        P1 = 0x3D4,
-        P2 = 0x3D5
+        P1 = 0x3D4, // Indexregister (nur schreiben)
+        P2 = 0x3D5 // Datenregister (lesen und schreiben)
 	};
+
+//	Grafikkarte
+//	----------------
+//	Adresse		Wert
+//	0x14		0
+//	0x15		0
+//
+//	Setze Cursor an Cursorindex 10
+//	0x3D4 = 14
+//	0x3D5 = 10
 
 	// Die Kommandos zum Cursor setzen
 	enum Cursor {
@@ -67,7 +77,16 @@ public:
 
 	// Setzen/Lesen des HW-Cursors
 	void setCursor(int column, int row);
-    
+
+//	Grafikkarte
+//	----------------
+//	Adresse		Wert
+//	0x14		0
+//	0x15		0
+//
+//	Hole Cursor-Wert
+//	0x3D4 = 14
+//	0x3D5 = ?? Wert der da vorher lag
 	void getCursor(int& column, int& row);
 
 	// Anzeigen von c an aktueller Cursorposition

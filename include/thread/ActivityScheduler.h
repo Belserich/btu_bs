@@ -41,7 +41,7 @@ public:
 	 * ist dem naechsten lauffaehigen Prozess die CPU
 	 * zuzuteilen.
 	 */
-	void kill(Activity*);
+	void kill(Activity* activity);
 
 	/* Terminieren des aktiven Prozesses,
 	 * und Wechsel zum naechsten lauffaehigen Prozess

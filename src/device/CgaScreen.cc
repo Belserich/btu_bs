@@ -41,8 +41,6 @@ void CgaScreen::scroll()
 	// scrolle den Bildschirm und alles darunter im Video RAM
 	memcpy((void*) Video::Offset0, (void*) (Video::Offset0 + Columns * 2), 2 * Columns * Rows);
 
-	// leere die letzte Zeile
-
 	int row, col;
 	getCursor(col, row);
 	if (row > 0)
@@ -89,6 +87,12 @@ void CgaScreen::getCursor(int &column, int &row)
 	offset <<= 8;
 	index.write(Cursor::I2);
 	offset |= data.read();
+
+	/* off	0000 0000 1111 1111
+	 * <<8	1111 1111 0000 0000
+	 * | 	0000 0000 0100 1001
+	 * =	1111 1111 0100 1001
+	 */
 
 	column = offset % Screen::Columns;
 	row = offset / Screen::Columns;

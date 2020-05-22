@@ -33,7 +33,7 @@ switchContext:
     mov     eax, [ebp+8]       ; eax := from
     mov     [eax], esp          ; [eax] = [from] := esp
     mov     eax, [ebp+12]
-    mov     esp, [eax]       ; esp := to
+    mov     esp, [eax]
 
     pop     ebx
     pop     edi

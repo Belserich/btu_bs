@@ -90,7 +90,13 @@ public:
 
 	void setBlinkState(bool blink)
 	{
-		x = blink ? x | Blink : x & ~Blink;
+		if (blink)
+		{
+			x = x | Blink;
+		}
+		else {
+			x = x & ~Blink;
+		}
 	}
 
 	// setzen aller Attribute
