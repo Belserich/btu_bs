@@ -13,60 +13,70 @@ Activity::Activity(const char* name)
 	scheduler.start(this);
 }
 
+/* Veranlasst den Scheduler, diese Aktivitaet aufzuwecken.
+ */
 void Activity::wakeup()
 {
+//	out.print("Wecke Aktivitaet ");
+//	out.print(name());
+//	out.printlt
+//	();
 	changeTo(READY);
 	scheduler.schedule(this);
 }
 
+/* Diese Aktivitaet gibt die CPU vorruebergehend ab.
+ */
 void Activity::yield()
 {
 	changeTo(READY);
 	scheduler.reschedule();
 }
 
+/* Veranlasst den Scheduler, diese Aktivitaet zu suspendieren.
+ */
 void Activity::sleep()
 {
 	changeTo(BLOCKED);
-	scheduler.reschedule();
+	scheduler.remove(this);
 }
 
+/* Diese Aktivitaet wird terminiert. Hier muss eine eventuell
+ * auf die Beendigung wartende Aktivit�t geweckt werden.
+ */
 void Activity::exit()
 {
-	if (exited)
+//	out.print("Exit auf ");
+//	out.print(this->name());
+//	out.println(" aufgerufen");
+
+	if (!isZombie())
 	{
-		return;
+		for (Activity* parent = (Activity*) parents.dequeue(); parent != nullptr; parent = (Activity*) parents.dequeue())
+		{
+//		out.print("Wecke die Elternaktivitaet (eine fruehere Activity die irgendwann join aufgerufen hat) mit dem Namen ");
+//		out.print(parent->name());
+//		out.println();
+			parent->wakeup();
+		}
+
+//		out.print("Toete Aktivitaet ");
+//		out.println(name());
+		scheduler.kill(this);
 	}
-
-	out.print("Exit auf ");
-	out.print(this->name());
-	out.println(" aufgerufen");
-
-	if (parent != nullptr)
-	{
-		out.println("Wecke die Elternaktivitaet (eine fruehere Coroutine die irgendwann join aufgerufen hat)");
-		parent->wakeup(); // parent->wakeup() eigentlich aber parent wurde ja auf den nullptr gesetzt
-		parent = nullptr;
-	}
-
-	exited = true;
-	changeTo(BLOCKED);
-	scheduler.kill(this);
 }
 
+/* Der aktuelle Prozess wird solange schlafen gelegt, bis der
+ * Prozess auf dem join aufgerufen wird beendet ist. Das
+ * Wecken des wartenden Prozesses �bernimmt exit.
+ */
 void Activity::join()
 {
-	changeTo(ZOMBIE);
-	parent = (Activity*) scheduler.active();
-	scheduler.suspend();
-	/**
-	 * Joiner -> ruft join() auf einer Coroutine auf
-	 * Joined -> die Coroutine, auf der durch Joiner join() aufgerufen wurde
-	 * -------
- 	 * Potentielle Fehlerquelle: Da hier nur ein joiner gespeichert wird treten Probleme auf, wenn im Kreis gejoint wird.
- 	 * Beispiel: Cor. 1 - join() > Cor. 2 - join() > Cor. 3 - join() > Cor. 1
-	 *
- 	 */
+	if (!isZombie())
+	{
+		parents.enqueue((Activity*) scheduler.active());
+		scheduler.suspend();
+	}
 }
 
 Activity::~Activity()

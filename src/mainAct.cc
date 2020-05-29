@@ -30,6 +30,7 @@ public:
 	
 	~Hello()
 	{
+		join();
 	}
 	
 	void body()

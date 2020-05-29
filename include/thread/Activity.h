@@ -15,6 +15,7 @@
 
 #include "thread/Schedulable.h"
 #include "thread/Coroutine.h"
+#include "lib/Queue.h"
 
 class Activity : public Schedulable, public Coroutine {
 public:
@@ -115,9 +116,8 @@ public:
 private:
 
 	State mState = BLOCKED;
-	Activity* parent = nullptr;
+	Queue parents;
 	const char* mName;
-	bool exited = false;
 };
 
 #endif

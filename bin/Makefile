@@ -48,6 +48,7 @@ SYSTEM_CC = \
 	thread/Scheduler.cc \
 	mainAct.cc
 
+
 ##############################################################################
 
 STARTUP_SOURCE = $(addprefix ../machine/,$(STARTUP_S))
@@ -153,3 +154,4 @@ $(DEPENDENCIES_FILE):
 
 # einbinden der Datei mit den aktuellen Abh�ngigkeiten
 sinclude $(DEPENDENCIES_FILE)
+
