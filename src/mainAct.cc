@@ -5,6 +5,8 @@
 #include "thread/Activity.h"
 #include "thread/ActivityScheduler.h"
 
+bool debugFlag = false;
+
 // Hello: Eine kooperative Aktivitaet
 //
 // Anmerkung: Diese Klasse dient
@@ -30,6 +32,11 @@ public:
 	
 	~Hello()
 	{
+		if (debugFlag)
+		{
+			cout.print("Destruktor von ");
+			cout.println(name);
+		}
 		join();
 	}
 	

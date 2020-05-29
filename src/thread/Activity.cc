@@ -2,6 +2,7 @@
 #include "thread/Activity.h"
 
 extern PrintStream out;
+extern bool debugFlag;
 
 Activity::Activity(const char* name, void *tos)
 	: Coroutine(tos), mName(name)
@@ -17,10 +18,6 @@ Activity::Activity(const char* name)
  */
 void Activity::wakeup()
 {
-//	out.print("Wecke Aktivitaet ");
-//	out.print(name());
-//	out.printlt
-//	();
 	changeTo(READY);
 	scheduler.schedule(this);
 }
@@ -46,22 +43,19 @@ void Activity::sleep()
  */
 void Activity::exit()
 {
-//	out.print("Exit auf ");
-//	out.print(this->name());
-//	out.println(" aufgerufen");
-
 	if (!isZombie())
 	{
 		for (Activity* parent = (Activity*) parents.dequeue(); parent != nullptr; parent = (Activity*) parents.dequeue())
 		{
-//		out.print("Wecke die Elternaktivitaet (eine fruehere Activity die irgendwann join aufgerufen hat) mit dem Namen ");
-//		out.print(parent->name());
-//		out.println();
+			if (debugFlag)
+			{
+				out.print("Wecke die Elternaktivitaet ");
+				out.print(parent->name());
+				out.println();
+			}
 			parent->wakeup();
 		}
 
-//		out.print("Toete Aktivitaet ");
-//		out.println(name());
 		scheduler.kill(this);
 	}
 }
@@ -72,9 +66,10 @@ void Activity::exit()
  */
 void Activity::join()
 {
-	if (!isZombie())
+	Activity* parent = (Activity*) scheduler.active();
+	if (!isZombie() && parent != this)
 	{
-		parents.enqueue((Activity*) scheduler.active());
+		parents.enqueue(parent);
 		scheduler.suspend();
 	}
 }
