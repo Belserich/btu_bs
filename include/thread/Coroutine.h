@@ -47,9 +47,10 @@ extern "C" {
 class Coroutine {
 public:
 
-	struct Frame {
+	// wird in jeden Stack beim initialisieren gelegt
+	struct ControlBlock {
 
-		Frame(Coroutine* cptr)
+		ControlBlock(Coroutine* cptr)
 			: cptr(cptr)
 		{}
 
@@ -58,8 +59,8 @@ public:
 		unsigned esi = 0;
 		void* ebp = nullptr;
 		void(* coroutine)(Coroutine*) = startup;
-		void* nirwana = nullptr;
-		Coroutine* cptr;
+		void* nirwana = nullptr; // Ruecksprungadresse von startup
+		Coroutine* cptr; // cptr ist Parameter der startup Funktion
 	};
 
 	/* Aufsetzen einer neuen Coroutine.
@@ -79,8 +80,8 @@ public:
 		 * push ebp
 		 * push next->sp
 		 * push this->sp
-		 * call switchContext
-		 * sub esp, 8
+		 * call switchContext // call legt Ruecksprung RA auf stack; call beendet -> Ruecksprung auf RA
+		 * RA: sub esp, 8
 		 * pop ebp
 		 *
 		 * ret

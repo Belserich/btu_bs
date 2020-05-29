@@ -26,9 +26,9 @@ void Coroutine::setup(void* tos)
 	//                ^tos
 	//           ^sp
 
-	this->sp = (void*) (((Frame*) tos) - 1); // -1 zieht vom Adresswert sizeof(Frame) ab; this->sp zeigt auf (tos - sizeof(Frame))
-	Frame* frame = ((Frame*) tos) - 1; // die gleiche Rechnung wie ueber dieser Zeile
-	*frame = Frame(this);
+	this->sp = (void*) (((ControlBlock*) tos) - 1); // -1 zieht vom Adresswert sizeof(Frame) ab; this->sp zeigt auf (tos - sizeof(Frame))
+	ControlBlock* frame = ((ControlBlock*) tos) - 1; // die gleiche Rechnung wie ueber dieser Zeile
+	*frame = ControlBlock(this);
 
 //	out2.print(this->sp);
 //	out2.println();

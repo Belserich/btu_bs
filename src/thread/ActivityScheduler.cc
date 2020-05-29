@@ -12,7 +12,7 @@ extern bool debugFlag;
 void ActivityScheduler::suspend()
 {
 	Activity* running = (Activity*) active();
-	running->sleep();
+	running->changeTo(Activity::BLOCKED);
 	reschedule();
 }
 

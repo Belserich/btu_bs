@@ -11,7 +11,17 @@ Activity::Activity(const char* name, void *tos)
 Activity::Activity(const char* name)
 	: Coroutine(), mName(name)
 {
-	scheduler.start(this);
+	scheduler.start(this); // setzt die laufende Activity
+}
+
+Activity::Activity(void *tos)
+		: Coroutine(tos)
+{}
+
+Activity::Activity()
+		: Coroutine()
+{
+	scheduler.start(this); // setzt die laufende Activity
 }
 
 /* Veranlasst den Scheduler, diese Aktivitaet aufzuwecken.
@@ -34,8 +44,7 @@ void Activity::yield()
  */
 void Activity::sleep()
 {
-	changeTo(BLOCKED);
-	scheduler.remove(this);
+	scheduler.suspend();
 }
 
 /* Diese Aktivitaet wird terminiert. Hier muss eine eventuell

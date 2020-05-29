@@ -45,6 +45,10 @@ public:
 	 */
 	Activity(const char* name);
 
+	Activity(void* tos);
+
+	Activity();
+
 	/* Im Destruktor muss ein explizites Terminieren dieser Aktivitaet erfolgen.
 	 * Das muss geschehen, da aufgrund der Aufrufreihenfolge von
 	 * Destruktoren bereits der abgeleitete Teil des Activity-Objekts zerstoert
@@ -117,7 +121,7 @@ private:
 
 	State mState = BLOCKED;
 	Queue parents;
-	const char* mName;
+	const char* mName = "Kein Name";
 };
 
 #endif
