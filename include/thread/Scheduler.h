@@ -27,7 +27,6 @@ public:
 	// Aktiviert das vorderste der Liste mittels activate.
 	void reschedule();
 
-
 protected:
 	/* Diese pur-virtuelle Methode stellt die Schnittstelle zum
 	 * ActivityScheduler dar, der diese Klasse erweitert. Siehe

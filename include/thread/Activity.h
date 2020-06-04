@@ -34,7 +34,7 @@ public:
 	 * der abgeleiteten Klasse abgearbeitet ist. Die Aktivierung
 	 * erfolgt von der abgeleiteten Klasse mittels "wakeup".
 	*/
-	Activity(const char* name, void* tos);
+	Activity(void* tos, const char* name = "No name", int timeSlice = 1);
 
 	/* Verpacken des aktuellen Kontrollflusses als Thread.
 	 * Wird nur f�r den Hauptkontrollfluss "main" ben�tigt.
@@ -43,11 +43,7 @@ public:
 	 * Coroutine abstrakt ist. Bei Bedarf muss "body" direkt
 	 * aufgerufen werden.
 	 */
-	Activity(const char* name);
-
-	Activity(void* tos);
-
-	Activity();
+	Activity(const char* name = "No name", int timeSlice = 1);
 
 	/* Im Destruktor muss ein explizites Terminieren dieser Aktivitaet erfolgen.
 	 * Das muss geschehen, da aufgrund der Aufrufreihenfolge von
@@ -56,7 +52,9 @@ public:
 	 * Das Warten auf die Beendigung (mittels join()) muss im Destruktor der
 	 * von Activity am weitesten abgeleiteten Klasse erfolgen.
 	 */
-	~Activity();
+	virtual ~Activity();
+
+	static void operator delete(void* p) {}
 
 	/* Veranlasst den Scheduler, diese Aktivitaet zu suspendieren.
 	 */
@@ -122,6 +120,7 @@ private:
 	State mState = BLOCKED;
 	Queue parents;
 	const char* mName = "Kein Name";
+	bool isMain;
 };
 
 #endif

@@ -1,11 +1,14 @@
 // Testprogramm fuer kooperative Threads
 
 #include "device/CgaChannel.h"
+#include "device/CPU.h"
 #include "io/PrintStream.h"
 #include "thread/Activity.h"
 #include "thread/ActivityScheduler.h"
-
-bool debugFlag = false;
+#include "device/PIC.h"
+#include "device/Clock.h"
+#include "interrupts/InterruptGuardian.h"
+#include "interrupts/IntLock.h"
 
 // Hello: Eine kooperative Aktivitaet
 //
@@ -15,47 +18,57 @@ bool debugFlag = false;
 // Das sollte normalerweise *nicht* der Fall sein!
 class Hello: public Activity {
 public:
-	Hello(const char* name, PrintStream& out, int count=10)
-		: Activity(name), cout(out)
+	Hello(const char* name, PrintStream& out, int timeSlice)
+		: Activity(name, timeSlice), cout(out)
 	{
 		this->name = name;
-		this->count = count;
 	}
 
-	Hello(const char* name, PrintStream& out, void* sp, int count=10)
-		: Activity(name, sp), cout(out)
+	Hello(const char* name, PrintStream& out, void* sp, int timeSlice)
+		: Activity(sp, name, timeSlice), cout(out)
 	{
 		this->name = name;
-		this->count = count;
 		wakeup();
 	}
-	
+
 	~Hello()
 	{
-		if (debugFlag)
-		{
-			cout.print("Destruktor von ");
-			cout.println(name);
-		}
 		join();
 	}
-	
+
 	void body()
 	{
-		for(int i=0; i<=count; i++) {
-			cout.print(name);
-			cout.print(" ");
-			cout.print(i);
-			cout.println();
-
-			yield();
+		static bool test = false;
+		if (test)
+		{
+			while (true)
+			{
+				{
+					IntLock lock;
+					cout.print(name);
+					cout.print("; ");
+				}
+				yield();
+			}
+		}
+		else
+		{
+			for(int i=0; i<5; i++) {
+				{
+					IntLock lock;
+					cout.print(name);
+					cout.print(" ");
+					cout.print(i);
+					cout.println();
+				}
+				for(int j=0; j<10000; j++);
+			}
 		}
 	}
 
 private:
 	const char* name;
 	PrintStream& cout;
-	int count;
 };
 
 //////////////////////////////////////////////////////////////////////////
@@ -64,6 +77,14 @@ private:
 // globale Ein-/Ausgabeobjekte
 CgaChannel cga;         // unser CGA-Ausgabekanal
 PrintStream out(cga);   // unseren PrintStream mit Ausgabekanal verknuepfen
+
+CPU cpu;
+
+InterruptGuardian interruptGuardian;
+PIC pic;
+int millis = 20;
+int micros = 0;
+Clock clock(millis * 1000 + micros);
 
 // Objekte der Prozessverwaltung
 ActivityScheduler scheduler;   // der Scheduler
@@ -74,10 +95,11 @@ unsigned stack1[1024];
 
 int main()
 {
-	Hello anton("Anton", out, 5); // anton benutzt den Stack von main
-	Hello berta("Berta", out, &stack0[1024], 10);
-	Hello caesar("Caesar", out, &stack1[1024], 15);
+	Hello anton("Anton", out, 1); // anton benutzt den Stack von main
+	Hello berta("Berta", out, &stack0[1024], 1);
+	Hello caesar("Caesar", out, &stack1[1024], 1);
 
+	cpu.enableInterrupts();
 	anton.body();
+//	while (1);
 }
-

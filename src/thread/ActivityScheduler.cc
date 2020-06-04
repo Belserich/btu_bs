@@ -1,9 +1,15 @@
 // belserich on 20.05.20
 
+#include <device/Clock.h>
 #include "thread/ActivityScheduler.h"
 
 extern PrintStream out;
-extern bool debugFlag;
+extern Clock clock;
+
+ActivityScheduler::~ActivityScheduler()
+{
+	clock.windup(-1);
+}
 
 /* Suspendieren des aktiven Prozesses
  * Der korrekte Ausfuehrungszustand ist zu setzen
@@ -25,29 +31,30 @@ void ActivityScheduler::suspend()
  */
 void ActivityScheduler::kill(Activity* activity)
 {
-	if (debugFlag)
+	static bool debug = false;
+
+	if (debug)
 	{
 		out.print("Toete Aktivitaet ");
 		out.print(activity->name());
+		if (activity == active())
+		{
+			out.println(" die gerade lief.");
+		}
+		else
+		{
+			out.println();
+		}
 	}
 
 	activity->changeTo(Activity::State::ZOMBIE);
 	if (activity == active()) // ist die zu toetende Coroutine gerade am Laufen?
 	{
-		if (debugFlag)
-		{
-			out.println(" die gerade lief.");
-		}
 		reschedule();
 	}
 	else
 	{
 		readylist.remove(activity);
-	}
-
-	if (debugFlag)
-	{
-		out.println();
 	}
 }
 
@@ -63,26 +70,29 @@ void ActivityScheduler::exit()
 
 void ActivityScheduler::activate(Schedulable *to)
 {
+	static bool debug = false;
+
 	Activity* oldRunning = (Activity*) active();
-	if (debugFlag)
+
+	if (debug)
 	{
 		out.print("Lief gerade: ");
 		out.print(oldRunning->name());
+		if (!oldRunning->isBlocked() && !oldRunning->isZombie())
+		{
+			out.print(" (neu eingereiht)");
+		}
 	}
 
 	if (!oldRunning->isBlocked() && !oldRunning->isZombie())
 	{
-		if (debugFlag)
-		{
-			out.print(" (neu eingereiht)");
-		}
 		oldRunning->wakeup();
 	}
 
 	if (to == nullptr)
 	{
 		to = (Activity*) readylist.dequeue();
-		if (debugFlag && to != nullptr)
+		if (to != nullptr && debug)
 		{
 			out.print("(fortgesetzt)");
 		}
@@ -91,18 +101,34 @@ void ActivityScheduler::activate(Schedulable *to)
 	if (to != nullptr)
 	{
 		Activity* newRunning = (Activity*) to;
-		if (debugFlag)
+
+		if (debug)
 		{
 			out.print("; Laeuft jetzt: ");
 			out.print(newRunning->name());
 		}
 
 		newRunning->changeTo(Activity::RUNNING);
+
 		dispatch(newRunning); // wechsle Coroutine
 	}
 
-	if (debugFlag)
+	if (debug)
 	{
 		out.println();
+	}
+}
+
+void ActivityScheduler::checkSlice()
+{
+	elapsedTicks += clock.ticks() - oldTicks;
+	oldTicks = clock.ticks();
+
+	Activity* running = (Activity*) active();
+
+	if (elapsedTicks >= running->quantum())
+	{
+		reschedule();
+		elapsedTicks = elapsedTicks - running->quantum();
 	}
 }

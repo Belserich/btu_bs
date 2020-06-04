@@ -2,24 +2,13 @@
 #include "thread/Activity.h"
 
 extern PrintStream out;
-extern bool debugFlag;
 
-Activity::Activity(const char* name, void *tos)
-	: Coroutine(tos), mName(name)
+Activity::Activity(void *tos, const char* name, int timeSlice)
+	: Schedulable(timeSlice), Coroutine(tos), mName(name), isMain(false)
 {}
 
-Activity::Activity(const char* name)
-	: Coroutine(), mName(name)
-{
-	scheduler.start(this); // setzt die laufende Activity
-}
-
-Activity::Activity(void *tos)
-		: Coroutine(tos)
-{}
-
-Activity::Activity()
-		: Coroutine()
+Activity::Activity(const char* name, int timeSlice)
+	: Schedulable(timeSlice), Coroutine(), mName(name), isMain(true)
 {
 	scheduler.start(this); // setzt die laufende Activity
 }
@@ -28,6 +17,8 @@ Activity::Activity()
  */
 void Activity::wakeup()
 {
+	IntLock lock;
+
 	changeTo(READY);
 	scheduler.schedule(this);
 }
@@ -36,6 +27,8 @@ void Activity::wakeup()
  */
 void Activity::yield()
 {
+	IntLock lock;
+
 	changeTo(READY);
 	scheduler.reschedule();
 }
@@ -44,6 +37,8 @@ void Activity::yield()
  */
 void Activity::sleep()
 {
+	IntLock lock;
+
 	scheduler.suspend();
 }
 
@@ -52,17 +47,14 @@ void Activity::sleep()
  */
 void Activity::exit()
 {
+	IntLock lock;
+
 	if (!isZombie())
 	{
 		for (Activity* parent = (Activity*) parents.dequeue(); parent != nullptr; parent = (Activity*) parents.dequeue())
 		{
-			if (debugFlag)
-			{
-				out.print("Wecke die Elternaktivitaet ");
-				out.print(parent->name());
-				out.println();
-			}
-			parent->wakeup();
+			parent->changeTo(READY);
+			scheduler.schedule(parent);
 		}
 
 		scheduler.kill(this);
@@ -75,6 +67,8 @@ void Activity::exit()
  */
 void Activity::join()
 {
+	IntLock lock;
+
 	Activity* parent = (Activity*) scheduler.active();
 	if (!isZombie() && parent != this)
 	{
@@ -86,4 +80,8 @@ void Activity::join()
 Activity::~Activity()
 {
 	exit();
+	if (isMain)
+	{
+		CPU::disableInterrupts();
+	}
 }

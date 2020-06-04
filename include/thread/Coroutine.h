@@ -19,6 +19,7 @@
  * implementierende Assemblerprozedur "switchContext".
  */
 #include <io/PrintStream.h>
+#include <device/CPU.h>
 
 extern "C" {
 	void switchContext(void* &from, void* &to);

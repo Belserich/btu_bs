@@ -1,5 +1,6 @@
 // belserich on 20.05.20
 
+#include <interrupts/IntLock.h>
 #include "thread/Scheduler.h"
 
 void Scheduler::schedule(Schedulable *sched)

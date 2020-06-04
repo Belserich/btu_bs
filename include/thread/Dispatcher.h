@@ -11,6 +11,8 @@
  *	Zuteilungsentscheidungen zustaendig ist.
  */
 
+#include <device/CPU.h>
+#include <interrupts/IntLock.h>
 #include "thread/Coroutine.h"
 
 class Dispatcher {
@@ -23,15 +25,15 @@ public:
 	/* Definieren des ersten Prozesses.
 	 * Wird nur einmal zur Initialisierung aufgerufen!!
 	 */
-	void init(Coroutine* act) 
-	{ 
-		running = act; 
+	void init(Coroutine* act)
+	{
+		running = act;
 	}
 
 	/* "active" liefert den Zeiger auf den aktiven Prozess.
 	*/
 	Coroutine* active() 
-	{ 
+	{
 		return running; 
 	}
 

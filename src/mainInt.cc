@@ -1,10 +1,16 @@
 // Testprogramm fuer kooperative Threads
 
+#include <interrupts/IntLock.h>
 #include "device/CgaChannel.h"
+#include "device/CPU.h"
 #include "io/PrintStream.h"
 #include "thread/Activity.h"
 #include "thread/ActivityScheduler.h"
+#include "device/PIC.h"
+#include "device/Clock.h"
+#include "interrupts/InterruptGuardian.h"
 
+extern PrintStream out;
 // Hello: Eine kooperative Aktivitaet
 //
 // Anmerkung: Diese Klasse dient
@@ -13,62 +19,42 @@
 // Das sollte normalerweise *nicht* der Fall sein!
 class Hello: public Activity {
 public:
-	Hello(const char* name, PrintStream& out, int count=10)
+	Hello(const char* name, PrintStream& out)
 		: Activity(name), cout(out)
 	{
 		this->name = name;
-		this->count = count;
 	}
 
-	Hello(const char* name, PrintStream& out, void* sp, int count=10)
-		: Activity(name, sp), cout(out)
+	Hello(const char* name, PrintStream& out, void* sp)
+		: Activity(sp, name), cout(out)
 	{
 		this->name = name;
-		this->count = count;
 		wakeup();
 	}
-	
+
 	~Hello()
 	{
+//		CPU::disableInterrupts();
+		join();
+		out.println(name);
+//		CPU::enableInterrupts();
 	}
 
 	void body()
 	{
-		for(int i=0; i<=count; i++) {
-			cout.print(name);
-			cout.print(" ");
-			cout.print(i);
-			cout.println();
+		for(int i=0; i<10; i++) {
+//			cout.print(name);
+//			cout.print(" ");
+//			cout.print(i);
+//			cout.println();
 
-			yield();
+//			yield();
 		}
 	}
 
-protected:
+private:
 	const char* name;
 	PrintStream& cout;
-	int count;
-};
-
-class Hello2 : public Hello
-{
-public:
-	Hello2(const char *name, PrintStream &out, void *sp, void *sp2, int count = 10)
-			: Hello(name, out, sp, count), delta("kind_delta", cout, sp2, 1)
-	{}
-
-	void body()
-	{
-		cout.println("Eintritt in body() von ");
-		cout.println(name);
-		cout.println("... gefolgt vom Eintritt in den Destruktor");
-
-		delta.join();
-		cout.println("Eine Zeile hinter join in Berta's Destruktor().");
-	}
-
-private:
-	Hello delta;
 };
 
 //////////////////////////////////////////////////////////////////////////
@@ -78,19 +64,31 @@ private:
 CgaChannel cga;         // unser CGA-Ausgabekanal
 PrintStream out(cga);   // unseren PrintStream mit Ausgabekanal verknuepfen
 
+CPU cpu;
+
+InterruptGuardian interruptGuardian;
+PIC pic;
+
+int millis = 20;
+int micros = 0;
+Clock clock(millis * 1000 + micros);
+
 // Objekte der Prozessverwaltung
 ActivityScheduler scheduler;   // der Scheduler
 
 // die Stacks fuer unsere Prozesse/Coroutinen
 unsigned stack0[1024];
 unsigned stack1[1024];
-unsigned stack2[1024];
 
 int main()
 {
-	Hello anton("Anton", out, 3); // anton benutzt den Stack von main
-	Hello2 berta("Berta", out, &stack0[1024], &stack2[1024], 10);
-//	Hello caesar("Caesar", out, &stack1[1024], 15);
+    Hello anton("Anton", out); // anton benutzt den Stack von main
+	Hello berta("Berta", out, &stack0[1024]);
+	Hello caesar("Caesar", out, &stack1[1024]);
+
+	cpu.enableInterrupts();
 
 	anton.body();
+
+    while(1);
 }

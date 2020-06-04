@@ -2,11 +2,9 @@
 
 #include "thread/Coroutine.h"
 
-//CgaChannel screen2;
-//PrintStream out2(screen2);
-
 void Coroutine::startup(Coroutine *obj)
 {
+	CPU::enableInterrupts();
 	obj->body();
 	obj->exit();
 }
@@ -29,18 +27,4 @@ void Coroutine::setup(void* tos)
 	this->sp = (void*) (((ControlBlock*) tos) - 1); // -1 zieht vom Adresswert sizeof(Frame) ab; this->sp zeigt auf (tos - sizeof(Frame))
 	ControlBlock* frame = ((ControlBlock*) tos) - 1; // die gleiche Rechnung wie ueber dieser Zeile
 	*frame = ControlBlock(this);
-
-//	out2.print(this->sp);
-//	out2.println();
-//	out2.print("Bytes Kontrollblock: ");
-//	out2.print(sizeof(Frame), 10);
-//	out2.println();
-//
-//	out2.print("Kontrollblock: ");
-//	for (int i = 0; i != (sizeof(Frame) / 4); i++)
-//	{
-//		out2.print((void*) *(((unsigned*)this->sp) + i));
-//		out2.print(" ");
-//	}
-//	out2.println();
 }

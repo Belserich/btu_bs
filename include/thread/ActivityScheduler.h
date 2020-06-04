@@ -19,6 +19,8 @@ public:
 	{
 	}
 
+	~ActivityScheduler();
+
 	/* Initialisieren der ersten Aktivit�t, des Schedulers
 	 * und des Dispatchers.
 	 * Wird nur einmal aufgerufen.
@@ -48,6 +50,8 @@ public:
 	 */
 	void exit();
 
+	void checkSlice();
+
 protected:
 	/* Der aktive Prozess ist, sofern er sich nicht im Zustand
 	 * Blocked oder Zombie befindet, wieder auf die Ready-Liste
@@ -57,7 +61,8 @@ protected:
 	virtual void activate(Schedulable* to);
 
 private:
-
+	int oldTicks = 0;
+	int elapsedTicks = 0;
 };
 
 extern ActivityScheduler scheduler;
