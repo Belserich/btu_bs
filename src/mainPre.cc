@@ -33,7 +33,21 @@ public:
 
 	~Hello()
 	{
+		static bool debug = false;
+
+		if (debug)
+		{
+			cout.print("Destructor start ");
+			cout.println(name);
+		}
+
 		join();
+
+		if (debug)
+		{
+			cout.print("Destructor end ");
+			cout.println(name);
+		}
 	}
 
 	void body()
@@ -44,7 +58,7 @@ public:
 			while (true)
 			{
 				{
-					IntLock lock;
+					IntLock lock; // es geht darum Objekte aus sleep ueber Interrupts aufwecken zu koennen
 					cout.print(name);
 					cout.print("; ");
 				}
@@ -82,7 +96,7 @@ CPU cpu;
 
 InterruptGuardian interruptGuardian;
 PIC pic;
-int millis = 20;
+int millis = 1;
 int micros = 0;
 Clock clock(millis * 1000 + micros);
 
@@ -101,5 +115,12 @@ int main()
 
 	cpu.enableInterrupts();
 	anton.body();
-//	while (1);
+
+	while (true)
+	{
+//		CPU::halt();
+	}
+//	cpu.disableInterrupts();
+	return 0;
 }
+

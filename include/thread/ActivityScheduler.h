@@ -19,6 +19,8 @@ public:
 	{
 	}
 
+//	void printQueue();
+
 	~ActivityScheduler();
 
 	/* Initialisieren der ersten Aktivit�t, des Schedulers

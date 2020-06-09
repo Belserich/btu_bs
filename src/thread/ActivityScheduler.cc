@@ -17,6 +17,7 @@ ActivityScheduler::~ActivityScheduler()
  */
 void ActivityScheduler::suspend()
 {
+	IntLock lock;
 	Activity* running = (Activity*) active();
 	running->changeTo(Activity::BLOCKED);
 	reschedule();
@@ -32,6 +33,7 @@ void ActivityScheduler::suspend()
 void ActivityScheduler::kill(Activity* activity)
 {
 	static bool debug = false;
+	IntLock lock; // es wird aufs aktive Element in der Queue zugegriffen
 
 	if (debug)
 	{
@@ -45,10 +47,13 @@ void ActivityScheduler::kill(Activity* activity)
 		{
 			out.println();
 		}
+//		out.print("Queue: ");
+//		printQueue();
 	}
 
 	activity->changeTo(Activity::State::ZOMBIE);
-	if (activity == active()) // ist die zu toetende Coroutine gerade am Laufen?
+	Activity* act = (Activity*) active();
+	if (activity == act) // ist die zu toetende Coroutine gerade am Laufen?
 	{
 		reschedule();
 	}
@@ -63,6 +68,7 @@ void ActivityScheduler::kill(Activity* activity)
  */
 void ActivityScheduler::exit()
 {
+	IntLock lock;
 	Activity* running = (Activity*) active();
 	running->changeTo(Activity::ZOMBIE);
 	reschedule();
@@ -71,64 +77,73 @@ void ActivityScheduler::exit()
 void ActivityScheduler::activate(Schedulable *to)
 {
 	static bool debug = false;
-
-	Activity* oldRunning = (Activity*) active();
-
-	if (debug)
-	{
-		out.print("Lief gerade: ");
-		out.print(oldRunning->name());
-		if (!oldRunning->isBlocked() && !oldRunning->isZombie())
-		{
-			out.print(" (neu eingereiht)");
-		}
-	}
-
-	if (!oldRunning->isBlocked() && !oldRunning->isZombie())
-	{
-		oldRunning->wakeup();
-	}
-
-	if (to == nullptr)
-	{
-		to = (Activity*) readylist.dequeue();
-		if (to != nullptr && debug)
-		{
-			out.print("(fortgesetzt)");
-		}
-	}
+	IntLock lock; // falls activate() direkt von aussen aufgerufen wird
 
 	if (to != nullptr)
 	{
+		Activity* oldRunning = (Activity*) active();
 		Activity* newRunning = (Activity*) to;
 
 		if (debug)
 		{
+			out.print("Lief gerade: ");
+			out.print(oldRunning->name());
+			if (!oldRunning->isBlocked() && !oldRunning->isZombie())
+			{
+				out.print(" (neu eingereiht)");
+			}
 			out.print("; Laeuft jetzt: ");
 			out.print(newRunning->name());
+			out.println();
+		}
+
+		if (!oldRunning->isBlocked() && !oldRunning->isZombie())
+		{
+			oldRunning->wakeup();
 		}
 
 		newRunning->changeTo(Activity::RUNNING);
-
 		dispatch(newRunning); // wechsle Coroutine
-	}
-
-	if (debug)
-	{
-		out.println();
 	}
 }
 
+//void ActivityScheduler::printQueue()
+//{
+//	IntLock lock;
+//	Activity* next;
+//	Queue temp;
+//	for (next = (Activity*) readylist.dequeue(); next != nullptr; next = (Activity*) readylist.dequeue())
+//	{
+//		temp.enqueue(next);
+//		out.print(next->name());
+//		out.print(" ");
+//	}
+//	out.println();
+//	for (next = (Activity*) temp.dequeue(); next != nullptr; next = (Activity*) temp.dequeue())
+//	{
+//		readylist.enqueue(next);
+//	}
+//}
+
 void ActivityScheduler::checkSlice()
 {
+	IntLock lock; // sollen ja immer eine ganze Funktion abdecken. Lock noetig, da checkSlice() public.
 	elapsedTicks += clock.ticks() - oldTicks;
 	oldTicks = clock.ticks();
 
 	Activity* running = (Activity*) active();
-
-	if (elapsedTicks >= running->quantum())
+	if (running != nullptr)
 	{
-		reschedule();
-		elapsedTicks = elapsedTicks - running->quantum();
+		if (elapsedTicks >= running->quantum())
+		{
+			elapsedTicks = elapsedTicks - running->quantum();
+			reschedule();
+		}
+	}
+	else
+	{
+		CPU::enableInterrupts();
+		CPU::halt();
+		CPU::disableInterrupts();
 	}
 }

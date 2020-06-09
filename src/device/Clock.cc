@@ -47,11 +47,12 @@ void Clock::handle()
 {
 	static bool test = false;
 
-	pic.ack();
 	m_Ticks += 1;
+	pic.ack();
 
 	if (test)
 	{
+		IntLock lock;
 		int clockPhase = (m_Ticks / 50) % 4;
 		char ch;
 		switch (clockPhase)

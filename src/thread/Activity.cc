@@ -17,8 +17,6 @@ Activity::Activity(const char* name, int timeSlice)
  */
 void Activity::wakeup()
 {
-	IntLock lock;
-
 	changeTo(READY);
 	scheduler.schedule(this);
 }
@@ -27,8 +25,6 @@ void Activity::wakeup()
  */
 void Activity::yield()
 {
-	IntLock lock;
-
 	changeTo(READY);
 	scheduler.reschedule();
 }
@@ -37,8 +33,6 @@ void Activity::yield()
  */
 void Activity::sleep()
 {
-	IntLock lock;
-
 	scheduler.suspend();
 }
 
@@ -47,18 +41,15 @@ void Activity::sleep()
  */
 void Activity::exit()
 {
-	IntLock lock;
+//	IntLock lock; // um Konsistenz ueber mehrere Iterationen der for-Schleife hinweg zu bewahren
 
-	if (!isZombie())
+	for (Activity* parent = (Activity*) parents.dequeue(); parent != nullptr; parent = (Activity*) parents.dequeue())
 	{
-		for (Activity* parent = (Activity*) parents.dequeue(); parent != nullptr; parent = (Activity*) parents.dequeue())
-		{
-			parent->changeTo(READY);
-			scheduler.schedule(parent);
-		}
-
-		scheduler.kill(this);
+		parent->changeTo(READY);
+		scheduler.schedule(parent);
 	}
+
+	scheduler.kill(this);
 }
 
 /* Der aktuelle Prozess wird solange schlafen gelegt, bis der
@@ -67,7 +58,7 @@ void Activity::exit()
  */
 void Activity::join()
 {
-	IntLock lock;
+	IntLock lock; // weil aufs aktive Element der readyList zugegriffen wird
 
 	Activity* parent = (Activity*) scheduler.active();
 	if (!isZombie() && parent != this)
@@ -79,9 +70,16 @@ void Activity::join()
 
 Activity::~Activity()
 {
-	exit();
-	if (isMain)
+	if (!isZombie())
 	{
-		CPU::disableInterrupts();
+		exit();
 	}
+
+//	if (isMain)
+//	{
+//		while (true)
+//		{
+//			CPU::halt();
+//		}
+//	}
 }
