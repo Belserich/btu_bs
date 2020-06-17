@@ -116,10 +116,6 @@ int main()
 	cpu.enableInterrupts();
 	anton.body();
 
-	while (true)
-	{
-//		CPU::halt();
-	}
 //	cpu.disableInterrupts();
 	return 0;
 }
