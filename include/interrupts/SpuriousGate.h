@@ -4,9 +4,9 @@
 #include "interrupts/Gate.h"
 
 /*
- * 	SpuriousGate: behandelt fehlende Berechtigungen
+ * 	PageFaultGate: behandelt PageFaults
  *
- *      Das SpuriousGate wird bei fehlender Berechtigung aktiviert,
+ *      Das PageFaultGate wird bei Speicherzugriffsverletzungen aktiviert,
  *      macht eine entsprechende Ausgabe und haelt die CPU an.
  */
 class SpuriousGate: public Gate {

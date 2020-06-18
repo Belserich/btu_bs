@@ -1,7 +1,6 @@
-#include <io/PrintStream.h>
 #include "interrupts/InterruptGuardian.h"
-#include "interrupts/PanicGate.h"
 
+#include "interrupts/PanicGate.h"
 extern PanicGate panicGate;
 
 static bool initialized = false;
@@ -24,7 +23,6 @@ InterruptGuardian::InterruptGuardian()
 	}
 }
 
-extern PrintStream out;
 void InterruptGuardian::handle(int num)
 {
 	vectorTable[num]->handle();

@@ -13,7 +13,7 @@
 
 #include "lib/Queue.h"
 #include "thread/Schedulable.h"
-#include "Dispatcher.h"
+#include "interrupts/IntLock.h"
 
 class Scheduler {
 public:
@@ -27,6 +27,8 @@ public:
 	// Aktiviert das vorderste der Liste mittels activate.
 	void reschedule();
 
+	void checkSlice();
+
 protected:
 	/* Diese pur-virtuelle Methode stellt die Schnittstelle zum
 	 * ActivityScheduler dar, der diese Klasse erweitert. Siehe
@@ -36,6 +38,7 @@ protected:
 
 	// Die Ready-Liste
 	Queue readylist;
+
 };
 
 #endif

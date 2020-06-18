@@ -1,30 +1,39 @@
-// belserich on 13.05.20
-
 #include "thread/Coroutine.h"
 
-void Coroutine::startup(Coroutine *obj)
-{
+/*
+	startup Methode
+	initialisiert eine Coroutine,
+	indem sie den Body und exit aufruft
+*/
+void Coroutine::startup(Coroutine* obj) {
 	CPU::enableInterrupts();
 	obj->body();
 	obj->exit();
-}
+};
 
-void Coroutine::setup(void* tos)
-{
-	if (tos == nullptr) // wird nur fuer anton, also diejenige Coroutine ausgefuehrt, die auf dem Hauptstack liegt
-	{
-		return; // kein setup fuer anton
-	}
+/*
+	setup Methode
+	Setzt ein SetupFrame nter den Stackpointer
+*/
+void Coroutine::setup(void* tos) {
+	//0 also schon auf main stack 
+	if (tos == 0) {
+        return;
+    }
+	//Neues setupframe
+	SetupFrame* sf = (SetupFrame*) tos;
+	//Wir wollen drunterschreiben
+	sf--;
 
-	// 0000 1111 0000 0
-	//                ^tos
-	// 0000 1111 0000 0
-	// 		     ^frame
-	// 0000 1111 1010 0
-	//                ^tos
-	//           ^sp
+    sf->edi = 0;
+    sf->esi = 0;
+    sf->ebx = 0;
+    sf->ebp = 0;
+	sf->startup = startup;
+    sf->nirwana = 0;
+	sf->arg = this;
+	//Stackpointer retten
+	this->sp = sf;
 
-	this->sp = (void*) (((ControlBlock*) tos) - 1); // -1 zieht vom Adresswert sizeof(Frame) ab; this->sp zeigt auf (tos - sizeof(Frame))
-	ControlBlock* frame = ((ControlBlock*) tos) - 1; // die gleiche Rechnung wie ueber dieser Zeile
-	*frame = ControlBlock(this);
-}
+    return;
+};

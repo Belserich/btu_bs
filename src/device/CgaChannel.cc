@@ -1,112 +1,99 @@
-#include <device/CgaChannel.h>
+#include "../../include/device/CgaChannel.h"
 
-CgaChannel::CgaChannel()
-	: CgaScreen()
-{}
+#include <string>
 
-CgaChannel::CgaChannel(const CgaAttr &attr)
-	: CgaScreen(attr)
-{}
+//Konstruktor
+CgaChannel::CgaChannel() {
 
-int CgaChannel::write(const char* data, int size)
-{
-	int col, row;
-	getCursor(col, row);
+};
+//Konstruktor mit Attribute
+CgaChannel::CgaChannel(const CgaAttr& attr) {
+	//Atribute setzten
+    setAttr(attr);
+};
 
-	for (int i = 0; i < size; ++i)
-	{
-		if (data[i] < 32) // Steuerzeichen
-		{
-			if (data[i] == '\n') // neue Zeile
-			{
-				row += 1;
-				col = 0;
-			}
-			else if (data[i] == '\r') // Cursorruecklauf
-			{
-				col = 0;
-			}
-			else if (data[i] == '\b') // Zeichen loeschen
-			{
-				col -= 1;
-				if (col < 0) // Cursor ist am linken Rand
-				{
-					row -= 1;
-					col = Columns - 1;
+/*
+Write methode
 
-					if (row < 0) // Cursor am oberen linken Rand
-					{
-						// verwerfe Zeichen
-						row = 0;
-						col = 0;
-					}
-				}
+Gibt jeden einzelnes Zeichen,
+an die show() Methode weiter
 
-				setCursor(col, row);
-				show('\0');
-			}
-		}
-		else
-		{
-			show(data[i]);
-
-			col += 1;
-			if (col >= Columns)
-			{
-				col = 0;
-				row += 1;
-			}
-		}
-
-		while (row >= Rows)
-		{
-			scroll();
-			row -= 1;
-			col = 0;
-		}
-
-		setCursor(col, row);
-	}
-
-	return 0;
+*/
+int CgaChannel::write(const char* data, int size) {
+    char c;
+    //Alle Zeichen durchgegehen
+    for(int i = 0; i < size; i++) {
+        c = *(data+i);
+        int row, col;
+        getCursor(col, row);
+        //Steuerungszeichen filtern
+        if(c == '\n') {
+			//neue Zeile oder scrollen
+            if(row < (CgaScreen::ROWS-1)) {
+                setCursor(0, row+1);
+            } else {
+                scroll();
+            }
+        } else if(c == '\r') {
+			//wieder zum Anfang der Zeile
+            setCursor(0, row);
+        } else {
+			//Zeichen weiter an show()
+            show(c);
+			//Cursor weiter setzten
+			setCursor(col+1, row);
+        }
+    }
+    return 0;
 }
+/*
+BlueScreen Methode 
 
-void CgaChannel::blueScreen(const char *error)
-{
-	CgaAttr attr(CgaAttr::Color::WHITE, CgaAttr::Color::BLUE);
-	CgaAttr oldAttr;
+Gibt einen klassischen Bluescreen aus.
+Gibt die übergebene Fehler-Nachricht aus in der Farbe weiß.
 
-	getAttr(oldAttr);
-	setAttr(attr);
-
-	for (int col = 0; col < Columns; ++col)
-	{
-		for (int row = 0; row < Rows; ++row)
-		{
-			setCursor(col, row);
-			show(' ');
-		}
+*/
+void CgaChannel::blueScreen(const char* error){
+	//blauer Hintergrund und weiße Schrift
+	CgaAttr attr;
+    attr.setBackground(CgaAttr::BLUE);
+    attr.setForeground(CgaAttr::WHITE);
+    attr.setBlinkState(false);
+	//Attribute als Byte 
+	char attrChar = attr.getByteAttr();
+	//Start Adresse Graphikspeicher
+	char *CGA = (char *) 0xb8000;
+    char *pos;
+	//ganzen Bildschirm durchgehen
+	for(int i = 0; i < CgaScreen::ROWS; i++) {
+		for(int j = 0; j < CgaScreen::COLUMNS; j++) {
+			//Position des Zeichen errechnen (fortlaufend gezaehlt)
+			pos = CGA + 2*(j+i*80);	
+			//Char und Attribute and die Speicheradresse setzten
+			*pos = 0;
+			*(pos + 1) = attrChar;
+		}		
 	}
+	//Mitte des Bilschirms
+	int x = 30;
+	int y = 10;
+	//Laenge der Fehlermeldung
+	int length = 0;
+	char *c;
+	c = (char *)error;
+	
+	while (*c != '\0') {
+        length++;
+        c++;
+    }
+	//String durchgehen und Zeichen in den Speicher setzten
+	for(int i = 0; i < length; i++) {
+		pos = CGA + 2 * ((x+i) + y * 80);
+		*pos = *(error + i);
+		*(pos + 1) = attrChar;
+	}
+};
 
-	const char* bsText1 = "(>_<)> FATALITY! <(>_<)";
-	const char* bsText2 = "^(>_<)^";
-	int size1, size2, size3;
 
-	for (size1 = 0; bsText1[size1] != '\0'; ++size1);
-	for (size2 = 0; bsText2[size2] != '\0'; ++size2);
-	for (size3 = 0; error[size3] != '\0'; ++size3);
 
-	setCursor(Columns / 2 - (size1 / 2), Rows / 2 - 1);
-	write(bsText1, size1);
 
-	setCursor(0, 0);
-	write(error, size3);
-
-	attr.setBlinkState(true);
-	setAttr(attr);
-	setCursor(Columns / 2 - (size2 / 2), Rows / 2 - 2);
-	write(bsText2, size2);
-
-	setCursor(0, 0);
-	setAttr(oldAttr);
-}

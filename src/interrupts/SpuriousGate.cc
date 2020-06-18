@@ -6,5 +6,6 @@ SpuriousGate::SpuriousGate(): Gate(SpuriousInterrupt) { }
 
 void SpuriousGate::handle()
 {
+	PIC pic = PIC();
 	pic.ack();
 }

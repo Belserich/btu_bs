@@ -12,19 +12,19 @@
  * Ein explizites Umschalten zu einer anderen Coroutine
  * wird damit hinfaellig.
  */
-
+#include <cstddef>
 #include "thread/Schedulable.h"
 #include "thread/Coroutine.h"
-#include "lib/Queue.h"
 
-class Activity : public Schedulable, public Coroutine {
+
+class Activity: public Schedulable, public Coroutine {
 public:
 	/* Die logischen Ausfuehrungszustaende
 	 * fuer diese Aktivitaet
 	 */
 	enum State {
 		BLOCKED,	//Prozesse die auf etwas warten
-		READY,      	//Prozesse die aktiviert werden kï¿½nnen
+		READY,      	//Prozesse die aktiviert werden können
 		RUNNING,	//Status des aktiven Prozesses
 		ZOMBIE		//Kindprozesse die vor den Eltern beendet werden
 	};
@@ -34,16 +34,16 @@ public:
 	 * der abgeleiteten Klasse abgearbeitet ist. Die Aktivierung
 	 * erfolgt von der abgeleiteten Klasse mittels "wakeup".
 	*/
-	Activity(void* tos, const char* name = "No name", int timeSlice = 1);
+	Activity(void* tos);
 
 	/* Verpacken des aktuellen Kontrollflusses als Thread.
-	 * Wird nur fï¿½r den Hauptkontrollfluss "main" benï¿½tigt.
+	 * Wird nur für den Hauptkontrollfluss "main" benötigt.
 	 * Es wird hier kein Stack initialisiert.
 	 * Beachte das Activity wegen der Vererbungsbeziehung von
 	 * Coroutine abstrakt ist. Bei Bedarf muss "body" direkt
 	 * aufgerufen werden.
 	 */
-	Activity(const char* name = "No name", int timeSlice = 1);
+	Activity();
 
 	/* Im Destruktor muss ein explizites Terminieren dieser Aktivitaet erfolgen.
 	 * Das muss geschehen, da aufgrund der Aufrufreihenfolge von
@@ -53,8 +53,7 @@ public:
 	 * von Activity am weitesten abgeleiteten Klasse erfolgen.
 	 */
 	virtual ~Activity();
-
-	static void operator delete(void* p) {}
+	static void operator delete(void* p){}
 
 	/* Veranlasst den Scheduler, diese Aktivitaet zu suspendieren.
 	 */
@@ -69,58 +68,71 @@ public:
 	void yield();
 
 	/* Diese Aktivitaet wird terminiert. Hier muss eine eventuell
-	 * auf die Beendigung wartende Aktivitï¿½t geweckt werden.
+	 * auf die Beendigung wartende Aktivität geweckt werden.
 	 */
 	void exit();
 
 	/* Der aktuelle Prozess wird solange schlafen gelegt, bis der
 	 * Prozess auf dem join aufgerufen wird beendet ist. Das
-	 * Wecken des wartenden Prozesses ï¿½bernimmt exit.
+	 * Wecken des wartenden Prozesses übernimmt exit.
 	 */
 	void join();
 
-	// Folgende Methoden dï¿½rfen "inline" implementiert werden
 
-	/* ï¿½ndern des Ausfï¿½hrungszustandes. Diese Methode sollte nur vom
+	// Folgende Methoden dürfen "inline" implementiert werden
+
+	/* Ändern des Ausführungszustandes. Diese Methode sollte nur vom
 	 * Scheduler verwendet werden.
 	 */
 	void changeTo(State state)
 	{
-		mState = state;
+		this->state = state;
 	}
 
-	// Ausfï¿½hrungszustand abfragen.
+	// Ausführungszustand abfragen.
 	bool isBlocked()
 	{
-		return mState == BLOCKED;
+		return (this->state == BLOCKED)?(true):(false);
 	}
 
 	bool isReady()
 	{
-		return mState == READY;
+		return (this->state == READY)?(true):(false);
 	}
 
 	bool isRunning()
 	{
-		return mState == RUNNING;
+		return (this->state == RUNNING)?(true):(false);
 	}
 
 	bool isZombie()
 	{
-		return mState == ZOMBIE;
+		return (this->state == ZOMBIE)?(true):(false);
+	}
+	
+	//Gibt den State als state zurück
+	State getState() {
+		return this->state;		
+	}
+	
+	/* getSuccessor Methode
+	 * gibt den Successor raus
+	 */
+    Activity* getSuccessor() {
+		return this->successor;
+	}
+	
+	/* setSuccessor Methode
+	 * setzt den Successor
+	 */
+	void setSuccessor(Activity* act) {
+		this->successor = act;
 	}
 
-	const char* name()
-	{
-		return mName;
-	}
 
 private:
-
-	State mState = BLOCKED;
-	Queue parents;
-	const char* mName = "Kein Name";
-	bool isMain;
+	State state;
+	Activity* successor = NULL;
 };
 
 #endif

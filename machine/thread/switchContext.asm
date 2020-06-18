@@ -18,45 +18,25 @@ csym switchContext
 ;
 ; C-Prototyp:
 ;
-;     void switchContext (void* &from, void* &to);
+;     void switchContext (void*& from, void*& to);
 ;
 
 switchContext:
-
+	;Auf den Stack speichern
     push    ebp
     mov     ebp, esp
-
+    push    ebx
     push    esi
     push    edi
-    push    ebx
-
-    mov     eax, [ebp+8]        ; eax = from (pointer)
-    mov     [eax], esp          ; *eax = esp (pointer) alter esp an from-Adresse gespeichert
-    mov     eax, [ebp+12]       ; eax = to (pointer)
-    mov     esp, [eax]          ; esp = *eax
-
-; 1#switchContext(...)
-; Co1 -> Co2
-; alten Stackpointer speichern
-; eax = Co1.from (=Co1.sp)
-; *eax = esp (also *Co1.sp = esp)
-; esp auf den neuen pointer setzen
-; eax = Co2.to
-; esp = *eax (= Co2.to)
-
-; 2#switchContext(...)
-; Co2 -> Co1
-; alten Stackpointer speichern
-; eax = Co2.from
-; *eax = esp
-; esp auf den neuen pointer setzen
-; eax = Co1.to (=Co1.sp)
-; esp = *eax (=Co1.to (=Co1.sp)) (also: esp = *Co1.sp)
-
-    pop     ebx
+	;Adressen holen
+    mov     eax, [ebp+8]
+    mov     [eax], esp
+    mov     eax, [ebp+12]
+    mov     esp, [eax]   
+	;Vom Stack holen
     pop     edi
     pop     esi
-
+    pop     ebx
     pop     ebp
 
 	ret		; Ruecksprung zum Aufrufer

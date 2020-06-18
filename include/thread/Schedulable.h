@@ -17,9 +17,10 @@
 
 class Schedulable: public Chain {
 public:
-	explicit Schedulable(int slice = 50)
+	explicit Schedulable(int slice = 1)
 	{ 
-		quantum(slice);
+		this->time = 0;
+		quantum(slice); 
 	}
 
 	void quantum(int slice)
@@ -31,9 +32,26 @@ public:
 	{ 
 		return slice;
 	}
+	
+	int getTime() {
+		return this->time;
+	}
+	
+	void setTime(int newTime) {
+		this->time = newTime;
+	}
+	
+	void incTime() {
+		this->time++;
+	}
+	
+	bool timeOver() {
+		return (this->time >= slice)?true:false;
+	}
 
 private:
 	int slice;
+	int time;
 };
 
 #endif

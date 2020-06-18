@@ -1,144 +1,245 @@
 #include "io/PrintStream.h"
+#include "device/CgaChannel.h"
 
-PrintStream::PrintStream(OutputChannel* chan)
-	: channel(*chan)
-{}
 
-PrintStream::PrintStream(OutputChannel& chan)
-	: channel(chan)
-{}
+//Konstruktoren mit Channel
+PrintStream::PrintStream(OutputChannel *chan)
+        : channel(*chan) {};
 
-void PrintStream::print(const char* str)
-{
-	int size = 0;
-	while (str[size] != '\0') // sucht nach dem NULL Steuerzeichen (jeder String wird mit so einem Zeichen beendet)
-	{
-		++size;
+PrintStream::PrintStream(OutputChannel &chan)
+        : channel(chan) {};
+
+		
+/*
+Print Methode
+
+Schreibt den String 
+
+*/
+void PrintStream::print(const char* str) {
+    int i= 0;
+	char *c;
+	c = (char *)str;
+	//Länge des String berechnen
+	while (*c != '\0') {
+        i++;
+        c++;
+    }
+    channel.write(str, i);
+};
+
+/*
+Print Methode
+
+Schreib ein einzelnes Zeichen
+
+*/
+void PrintStream::print(char ch) {
+    channel.write((char *) &ch, 1);
+};
+
+/*
+PrintLine Methode
+
+Schreibt den String und 
+geht dann in die naechste Zeile
+
+*/
+void PrintStream::println(const char* str) {
+    print(str);
+    println();
+};
+
+/*
+PrintLine Methode
+
+Schreib über Steuerungszeichen eine neue Zeile
+
+*/
+void PrintStream::println() {
+    channel.write('\n');
+};
+
+/*
+Print Methode für Zahlen
+
+Die Methode schreib Zahlen, je nach der Basis,
+standard Basis ist 10.
+
+*/
+void PrintStream::print(int x, int base) {
+	if((base != 2) && (base != 10) && (base != 16)) {
+		print("Falsche Basis");
+		return;
 	}
-	channel.write(str, size);
-}
-
-void PrintStream::print(char ch)
-{
-	channel.write(ch);
-}
-
-void PrintStream::println(const char* str)
-{
-	print(str);
-	println();
-}
-
-void PrintStream::println()
-{
-	channel.write('\n');
-}
-
-void PrintStream::print(int x, int base)
-{
-	if (x < 0)
-	{
-		print("-");
-		x = -x; // konvertiert eine negative Zahl im Zweierkomplement in ihre positive Darstellung
+	char ch[34];
+	bool neg = false;
+	//Wenn negativ - praefix
+	if(x < 0) {
+		neg = true;
+		x = -(x);
 	}
-	print((unsigned) x, base);
-}
-
-void PrintStream::print(unsigned x, int base)
-{
-	if (base == BINARY)
-	{
-		bool hasOne = false; // wird true nach Auffinden der ersten Eins
-
-		print("0b");
-		// i ist der shift offset (30, bei 32-bit ints), wir beginnen bei 30 (vorletzter Index im Bitstring der Zahl), da der letzte das Vorzeichen angibt
-		for (int i = sizeof(int) * 8 - 2; i >= 0; --i) // geht den Bitstring von links nach rechts ab
-		{
-			int currBit = (x >> i) & 1; // schiebt das zu betrachtende Bit an die erste Position und loescht mit & 1 alle anderen Positionen
-
-			// currBit kann nur 1 oder 0 sein
-			if (currBit) // 1 steht immer fuer wahr und 0 immer fuer falsch, daher kann man das hier so schreiben
-			{
-				if (!hasOne)
-				{
-					hasOne = true; // auschlaggebend dafuer, ob eine null auch im string als 0 gesetzt wird. Ist fuer alle Nullen nach der letzten Eins nicht noetig
-				}
-				print("1");
-			}
-			else if (hasOne || i == 0) // currBit = 0 oder keine Eins im Bitstring (in diesem Fall ist die Zahl Null und mind. eine Null wird geschrieben
-			{
-				print("0");
-			}
+	
+	//Laenge des Integers
+	int len = 1;
+	int temp_num = x;
+	if (temp_num > 0) {
+		for (len = 0; temp_num > 0; len++) {
+			temp_num /= base;
 		}
 	}
-	else if (base == DECIMAL)
-	{
-		// 9845 : 1000 = 9
-		// 9845 - 9 * 1000 = 845
-		// 845 : 100 = 8
-		// 845 - 8 * 100 = 45
-		// 45 : 10 = 4
-		// 45 - 4 * 10 = 5
-		// 5 : 1 = 5
-
-		bool has = false;
-
-		// im Folgenden betrachten wir jede einzelne Zahl (des Dezimalstrings) von links nach rechts
-		for (int i = 9 /* TODO funktioniert so nur fuer 32-bit ints */; i >= 0; --i) // i ist die Zehnerpotenz durch die wir den Dezimalwert teilen.
-		{
-			unsigned num = 1;
-			for (int j = 0; j < i; ++j) num *= 10; // berechnet 10^i
-
-			unsigned quot = x / num;
-
-			if (quot > 0)
-			{
-				has = true;
-
-				print((char) (48 + quot)); // Zahl von 0-9
-			}
-			else if (has || i == 0)
-			{
-				print('0');
-			}
-
-			x -= (x / num) * num; // ziehen die gefundene Zahl vom Dezimalstring ab (Bsp.: 113 / 100 = 1 (linke Ziffer) -> x -= ... = 113 - 100 = 13)
-		}
+	int idx = len-1;;
+	
+	if(x == 0) {
+		ch[0] = 48;
 	}
-	else if (base == HEX)
+	//Umrechnung  mit der Basis
+	while(x > 0)
 	{
-		// hier das selbe Spiel wie bei BINARY
-		bool has = false; // wird true nach Auffinden der ersten Zahl ungleich Null
-
+		//48 für Ascii Zahlenraum
+		ch[idx] = (x%base) + 48;
+		x /= base;
+		idx --;         
+	}
+	//Wenn hex 
+	if(base == 16) {
+		//Hex  praefix
 		print("0x");
-		// i ist der Offset-Multiplikator fuers spaetere bit shifting. Fuer 32bit ints geht i vom 8. Halbbyte bis zum 1. (Indizes 7-0)
-		for (int i = sizeof(int) * 2 - 1; i >= 0; --i)
-		{
-			int currNib = (x >> (i * 4)) & 0xf; // schiebt das zu betrachtende Halbbyte (Nibble) an die erste Position und loescht mit & 0xf alle anderen Positionen
-
-			// currBit kann nur einen von 16 Werten annehmen
-			if (currNib > 0)
-			{
-				has = true; // auschlaggebend dafuer, ob eine Null auch im string als 0 gesetzt wird. Ist fuer alle Nullen nach der letzten Eins nicht noetig
-
-				if (currNib <= 9)
-				{
-					print((char) (48 + currNib)); // 48 ist die 0 im ASCII-code, der char fuer i liegt hat also den Wert 48 + i mit 0 <= i <= 9
-				}
-				else
-				{
-					print((char) (65 + (currNib - 10))); // selbes Spiel wie oben, die 65 ist das A und wir ziehen 10 ab, weil die ersten 10 Halbbytes als Zahlen darstellbar sind
-				}
+		if(neg) {
+			channel.write('-');
+		}
+		for(int i = 0; i < len; i++) {
+			//Wenn zahl ueber 10 dann Alphabet
+			if(ch[i]>57) {
+				ch[i]+=7;
 			}
-			else if (has || i == 0) // currNib == 0 oder keine Eins im Bitstring (in diesem Fall ist die Zahl Null und mind. eine Null wird geschrieben
-			{
-				print('0');
-			}
+			channel.write(ch[i]);
+		}
+	} else {
+		//Binaer praefix
+		if(base == 2) {
+			print("0b");
+		}
+		if(neg) {
+			channel.write('-');;
+		}
+		//Jedes Zeichen einzeln schreiben
+		for(int i = 0; i < len; i++) {
+			channel.write(ch[i]);
 		}
 	}
-}
+};
 
-void PrintStream::print(void* p)
-{
-	print((unsigned) p, 16);
-}
+/*
+Print Methode für Zahlen mit unsigned
+
+Die Methode schreibt Zahlen,
+mit der zugehörigen Basis,
+standard Basis ist 10.
+Nur positive Werte.
+
+
+*/
+void PrintStream::print(unsigned x, int base) {
+	if(base != 2 && base != 10 && base != 16) {
+		print("Falsche Basis");
+		return;
+	}
+	//Umwandlung  zum int
+	unsigned int num = (unsigned int) x;
+	char ch[64];
+	//Keine neg. Zahlen
+	if(num < 0) {
+		//Error Nachricht
+		print("Fehler Keine neg. Zahlen bei unsigned;");
+		return;
+	}
+	//Laenge des Ints ermitteln
+	int len = 1;
+	unsigned int temp_num = num;
+	if (temp_num > 0) {
+		for (len = 0; temp_num > 0; len++) {
+			temp_num /= base;
+		}
+	}
+	int idx = len-1;;
+	
+	if(num == 0) {
+		ch[0] = 48;
+	}
+	//Wert mit der Basis verrechnen
+	while(num > 0)
+	{
+		//48 addieren für Ascii Zahlenraum
+		ch[idx] = (num%base) + 48;
+		num /= base;
+		idx --;         
+	}
+	//Wenn HEx
+	if(base == 16) {
+		//Praefix für Hex
+		print("0x");
+		for(int i = 0; i < len; i++) {
+			//Wenn zahl ueber 10 dann Alphabet
+			if(ch[i]>57) {
+				ch[i]+=7;
+			}
+			channel.write(ch[i]);
+		}
+	} else {
+		//Praefix für binaer
+		if(base == 2) {
+			channel.write('B');
+		}
+		//Jedes Zeichen einzeln ausgeben
+		for(int i = 0; i < len; i++) {
+			channel.write(ch[i]);
+		}
+	}
+};
+
+/*
+Print Methode mit Zeigern
+
+Diese Methode gibt den Speicher,
+des übergebenen Zeigers wieder,
+das als Hex-Wert
+
+
+*/
+void PrintStream::print(void* p){
+	//Zeiger als int
+	int num = (int) p;
+	char ch[34];
+	//Länge vom Zeiger
+	int len = 1;
+	int temp_num = num;
+	if (temp_num > 0) {
+		for (len = 0; temp_num > 0; len++) {
+			temp_num /= 16;
+		}
+	}
+	//Index für Char
+	int idx = len-1;;
+	
+	if(num == 0) {
+		ch[0] = 48;
+	}
+	//Umwandlung in Hex mit Basis 16
+	while(num > 0)
+	{
+		ch[idx] = (num%16) + 48;
+		num /= 16;
+		idx --;         
+	}
+	//Hex Pre-Fix
+	print("0x");
+	//Jedes Zeichen schreiben
+	for(int i = 0; i < len; i++) {
+		//Alles ab 10 als Buchstabe
+		if(ch[i]>57) {
+			ch[i]+=7;
+		}
+		channel.write(ch[i]);
+	}
+};

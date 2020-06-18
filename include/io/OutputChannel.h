@@ -33,8 +33,8 @@ public:
 		return write(&c, sizeof(c));
 	}
 
-	// Bluescreen mit eigener Fehlermeldung
-	virtual void blueScreen(const char* error) = 0;
+
+
 };
 
 #endif

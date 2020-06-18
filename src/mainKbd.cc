@@ -1,5 +1,6 @@
 // Testprogramm fuer kooperative Threads
 
+#include <tools/Scanner.h>
 #include "device/CgaChannel.h"
 #include "device/CPU.h"
 #include "io/PrintStream.h"
@@ -8,6 +9,8 @@
 #include "device/PIC.h"
 #include "device/Clock.h"
 #include "interrupts/InterruptGuardian.h"
+#include "interrupts/IntLock.h"
+#include "device/Keyboard.h"
 
 // Hello: Eine kooperative Aktivitaet
 //
@@ -15,34 +18,31 @@
 // zu Testzwecken und der Einfacheit halber sind
 // alle Methoden dieser Klasse ausnahmsweise inline deklariert
 // Das sollte normalerweise *nicht* der Fall sein!
-class Hello: public Activity {
+class Echo: public Activity {
 public:
-	Hello(const char* name, PrintStream& out)
+	explicit Echo(PrintStream& out)
 		: cout(out)
 	{
-		this->name = name;
 	}
 
-	Hello(const char* name, PrintStream& out, void* sp)
+	explicit Echo(PrintStream& out, void* sp)
 		: Activity(sp), cout(out)
 	{
-		this->name = name;
 		wakeup();
 	}
 
 	void body()
 	{
-		while (true) {
-			cout.print(name);
-			cout.print(" ");
-			cout.println();
-
-			yield();
-		}
+		char c;
+		Key key;
+		do{
+			key = keyboard.read();
+				c = key.getValue();
+				cout.print(c);
+		}while(c!='x');
 	}
 
 private:
-	const char* name;
 	PrintStream& cout;
 };
 
@@ -53,7 +53,9 @@ CPU cpu;
 
 InterruptGuardian interruptGuardian;
 PIC pic;
-Clock clock(25000);
+Clock clock(2500);
+
+Keyboard keyboard;
 
 // globale Ein-/Ausgabeobjekte
 CgaChannel cga;         // unser CGA-Ausgabekanal
@@ -62,23 +64,11 @@ PrintStream out(cga);   // unseren PrintStream mit Ausgabekanal verknuepfen
 // Objekte der Prozessverwaltung
 ActivityScheduler scheduler;   // der Scheduler
 
-// die Stacks fuer unsere Prozesse/Coroutinen
-unsigned stack0[1024];
-unsigned stack1[1024];
-
 int main()
 {
+//	Echo echo(out);
+//	cpu.enableInterrupts();
+//	echo.body();
 
-    //Hello anton("Anton", out); // anton benutzt den Stack von main
-	//Hello berta("Berta", out, &stack0[1024]);
-	//Hello caesar("Caesar", out, &stack1[1024]);
-	cpu.enableInterrupts();
-	
-    //anton.body();
-	while(true) {
-		
-	}
-	
-    
-
+	return 0;
 }

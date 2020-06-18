@@ -1,6 +1,8 @@
 #ifndef Coroutine_h
 #define Coroutine_h
 
+#include "device/CPU.h"
+
 /*
  * Coroutine:
  * Diese Klasse implementiert Coroutinen, welche die Basis
@@ -15,14 +17,12 @@
  *
  */
 
+
 /* Diese Deklaration verweist auf die von Euch zu
  * implementierende Assemblerprozedur "switchContext".
  */
-#include <io/PrintStream.h>
-#include <device/CPU.h>
-
 extern "C" {
-	void switchContext(void* &from, void* &to);
+	void switchContext(void*& from, void*& to);
 }
 /* switchContext hat die Aufgabe, die Kontrolle
  * vom Stack der Coroutine "from" auf den Stack der
@@ -45,25 +45,10 @@ extern "C" {
  * deshalb ein Stackframe existieren, was gleich aussieht mit
  * dem einer Coroutine die "switchContext" aufgerufen hat.
  */
+
+
 class Coroutine {
 public:
-
-	// wird in jeden Stack beim initialisieren gelegt
-	struct ControlBlock {
-
-		ControlBlock(Coroutine* cptr)
-			: cptr(cptr)
-		{}
-
-		/*nach Coroutinenwechsel zeigt esp auf Instanzen von Frame im Speicher an diese Stelle ->*/ unsigned ebx = 0;
-		unsigned edi = 0;
-		unsigned esi = 0;
-		void* ebp = nullptr;
-		void(* coroutine)(Coroutine*) = startup;
-		void* nirwana = nullptr; // Ruecksprungadresse von startup
-		Coroutine* cptr; // cptr ist Parameter der startup Funktion
-	};
-
 	/* Aufsetzen einer neuen Coroutine.
 	*/
 	Coroutine(void* tos = 0)
@@ -76,17 +61,7 @@ public:
 	 */
 	void resume(Coroutine* next)
 	{
-		switchContext(this->sp, next->sp); // uebergeben Zeiger auf alten und neuen Stackpointer (ja doppelt!)
-		/**
-		 * push ebp
-		 * push next->sp
-		 * push this->sp
-		 * call switchContext // call legt Ruecksprung RA auf stack; call beendet -> Ruecksprung auf RA
-		 * RA: sub esp, 8
-		 * pop ebp
-		 *
-		 * ret
-		 */
+		switchContext(this->sp, next->sp);
 	}
 
 	/* Dies ist der Rumpf der Coroutine
@@ -120,9 +95,17 @@ private:
 	 */
 	void setup(void* tos);
 
-	void* sp; // Stackpointer esp
+	void* sp; // Der gerettete Stackpointer
+
+	struct SetupFrame {
+        unsigned    edi;
+        unsigned    esi;
+        unsigned    ebx;
+        void*       ebp;
+        void        (*startup)(Coroutine*);
+        void*       nirwana;
+        Coroutine*  arg;
+    };
 };
-
-
 
 #endif

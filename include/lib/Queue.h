@@ -15,6 +15,10 @@ public:
 
 	// Entfernen des angegebenen Elementes
 	void remove(Chain* item);
+	
+	Chain* getHead() {
+		return head;
+	}
 
 private:
 	Chain* head;	// der Listenkopf

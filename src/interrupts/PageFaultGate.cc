@@ -3,7 +3,6 @@
 #include "io/PrintStream.h"
 #include "device/CgaChannel.h"
 #include "device/CPU.h"
-
 extern CPU cpu;
 extern PrintStream out;
 extern CgaChannel cga;

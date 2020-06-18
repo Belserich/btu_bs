@@ -18,14 +18,14 @@
 // Das sollte normalerweise *nicht* der Fall sein!
 class Hello: public Activity {
 public:
-	Hello(const char* name, PrintStream& out, int timeSlice)
-		: Activity(name, timeSlice), cout(out)
+	Hello(const char* name, PrintStream& out)
+		: cout(out)
 	{
 		this->name = name;
 	}
 
-	Hello(const char* name, PrintStream& out, void* sp, int timeSlice)
-		: Activity(sp, name, timeSlice), cout(out)
+	Hello(const char* name, PrintStream& out, void* sp)
+		: Activity(sp), cout(out)
 	{
 		this->name = name;
 		wakeup();
@@ -33,50 +33,20 @@ public:
 
 	~Hello()
 	{
-		static bool debug = false;
-
-		if (debug)
-		{
-			cout.print("Destructor start ");
-			cout.println(name);
-		}
-
 		join();
-
-		if (debug)
-		{
-			cout.print("Destructor end ");
-			cout.println(name);
-		}
 	}
 
 	void body()
 	{
-		static bool test = false;
-		if (test)
-		{
-			while (true)
+		for(int i=0; i<10; i++) {
 			{
-				{
-					IntLock lock; // es geht darum Objekte aus sleep ueber Interrupts aufwecken zu koennen
-					cout.print(name);
-					cout.print("; ");
-				}
-				yield();
+				IntLock lock;
+				cout.print(name);
+				cout.print(" ");
+				cout.print(i);
+				cout.println();
 			}
-		}
-		else
-		{
-			for(int i=0; i<5; i++) {
-				{
-					IntLock lock;
-					cout.print(name);
-					cout.print(" ");
-					cout.print(i);
-					cout.println();
-				}
-				for(int j=0; j<10000; j++);
-			}
+            for(int j=0; j<100000; j++);
 		}
 	}
 
@@ -88,17 +58,15 @@ private:
 //////////////////////////////////////////////////////////////////////////
 // Die Systemobjekte von Co-Stubs
 
-// globale Ein-/Ausgabeobjekte
-CgaChannel cga;         // unser CGA-Ausgabekanal
-PrintStream out(cga);   // unseren PrintStream mit Ausgabekanal verknuepfen
-
 CPU cpu;
 
 InterruptGuardian interruptGuardian;
 PIC pic;
-int millis = 1;
-int micros = 0;
-Clock clock(millis * 1000 + micros);
+Clock clock(2500);
+
+// globale Ein-/Ausgabeobjekte
+CgaChannel cga;         // unser CGA-Ausgabekanal
+PrintStream out(cga);   // unseren PrintStream mit Ausgabekanal verknuepfen
 
 // Objekte der Prozessverwaltung
 ActivityScheduler scheduler;   // der Scheduler
@@ -109,14 +77,14 @@ unsigned stack1[1024];
 
 int main()
 {
-	Hello anton("Anton", out, 1); // anton benutzt den Stack von main
-	Hello berta("Berta", out, &stack0[1024], 1);
-	Hello caesar("Caesar", out, &stack1[1024], 1);
+	Hello anton("Anton", out); // anton benutzt den Stack von main
+	Hello berta("Berta", out, &stack0[1024]);
+	Hello caesar("Caesar", out, &stack1[1024]);
+
+	anton.quantum(2);
+	berta.quantum(5);
+	caesar.quantum(10);
 
 	cpu.enableInterrupts();
 	anton.body();
-
-//	cpu.disableInterrupts();
-	return 0;
 }
-

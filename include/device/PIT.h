@@ -8,7 +8,6 @@
  *	liefert er alle "us" Mikrosekunden einen Interrupt
  */
 
-#include <io/PrintStream.h>
 #include "io/IOPort.h"
 
 class PIT {
@@ -41,8 +40,6 @@ private:
 		DATA_PORT 	= 0x40
 	};
 
-	IOPort8 ctrl;
-	IOPort8 data;
 };
 
 extern PIT pit;

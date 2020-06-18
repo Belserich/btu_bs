@@ -1,37 +1,21 @@
-// belserich on 02.06.20
-
 #include "device/PIT.h"
+#include "io/PrintStream.h"
 
 extern PrintStream out;
 
-PIT::PIT()
-	: ctrl(CONTROL_PORT),
-	data(DATA_PORT)
-{}
+PIT::PIT(){
+	
+};
 
-PIT::PIT(int us)
-	: ctrl(CONTROL_PORT),
-	data(DATA_PORT)
-{
-	interval(us);
-}
+PIT::PIT (int us) {
+    interval(us);
+};
 
-void PIT::interval(int us)
-{
-	int ticks = us * 1000 / TIME_BASE;
-
-	out.print("Setting interrupt timer interval to ");
-	out.print(us / 1000);
-	out.print(" ms (");
-	out.print(ticks);
-	out.println(" ticks).");
-
-	// Zaehlerauswahl: 00, Lesen/Schreiben: 11 (lsb dann msb), Modus: 010, Zaehlformat: 0
-	int ctrlWord = 0b00110100;
-	int lsb = ticks;
-	int msb = ticks>>8;
-
-	ctrl.write(ctrlWord);
-	data.write(lsb);
-	data.write(msb);
-}
+void PIT::interval (int us) {
+	int iv = (us/TIME_BASE) * 1000;
+	//Steuerungs Wort
+    IOPort8(CONTROL_PORT).write(0x34);
+	//Zeit schreiben
+    IOPort8(DATA_PORT).write(iv);
+    IOPort8(DATA_PORT).write((iv >> 8));
+};

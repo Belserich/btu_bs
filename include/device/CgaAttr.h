@@ -10,21 +10,12 @@
  *		als inline Methoden deklarieren.
  */
 
-
 class CgaAttr {
 private:
 	enum AttrMaskAndShifts {
-
-		/* Darstellungsattriubute:
-		*	Vordergrundfarbe: Bits 0-3
-		*	Hintergrundfarbe: Bits 4-6
-		*	Blinken: Bit 7
-		*/
-
-		ForegroundColor = 0b00001111,
-		BackgroundColor = 0b01110000,
-		Blink = 0b10000000,
-
+		FOREGROUND = 0,
+		BACKGROUND = 4,
+		BLINK = 7
 	};
 
 
@@ -33,22 +24,22 @@ public:
 	 *	Tragt hier *alle* CGA Farben mit den richtigen Werten ein
 	 */
 	enum Color {
-		BLACK = 0b000,
-		BLUE = 0b001,
-		BROWN = 0b110,
-		CYAN = 0b011,
-		GRAY = 0b1000,
-		GREEN = 0b010,
-		LIGHT_BLUE = 0b1001,
-		LIGHT_CYAN = 0b1011,
-		LIGHT_GRAY = 0b111,
-		LIGHT_GREEN = 0b1010,
-		LIGHT_MAGENTA = 0b1101,
-		LIGHT_RED = 0b1100,
-		MAGENTA = 0b101,
-		RED = 0b100,
-		WHITE = 0b1111,
-		YELLOW = 0b1110
+		BLACK = 0,
+		BLUE = 1,
+		BROWN = 6,
+		CYAN = 3,
+		GRAY = 8,
+		GREEN= 2,
+		LIGHT_BLUE = 9,
+		LIGHT_CYAN = 11,
+		LIGHT_GRAY = 7,
+		LIGHT_GREEN = 10,
+		LIGHT_MAGENTA = 13,
+		LIGHT_RED = 12,
+		MAGENTA = 5,
+		RED = 4,
+		WHITE = 15,
+		YELLOW = 14
 	};
 
 
@@ -57,77 +48,77 @@ public:
 	  * so werden die Defaultwerte (Vordergrund weiss, Hintergrund schwarz, Blinken deaktiviert)
 	  * verwendet.
 	  */
-	CgaAttr(Color fg = WHITE, Color bg = BLACK, bool blink = false)
+	CgaAttr(Color fg=WHITE, Color bg=BLACK, bool blink=false)
 	{
 		setForeground(fg);
 		setBackground(bg);
 		setBlinkState(blink);
 	}
+	
+	//CgaAttr(Color fg, COlor bg, bool blink) {
+		//setForeground(fg);
+		//setBackground(bg);
+		//setBlinkState(blink);
+	//}
 
-	/* setzen der Schriftfarbe
-	* col muss nicht geshiftet werden, Form ist bereits richtig: 0b 0000 xxxx
-	* mit der Farbe (col) �ndert man die ersten 4 Bits
-	* ((~ForegroundColor) & this->x) sind die restlichen Bits des Attributs x die nicht verloren gehen sollen
-	*/
+	// setzen der Schriftfarbe
 	void setForeground(Color col)
 	{
-		x = col | ((~ForegroundColor) & this->x);
+		this->foreground = col;
 	}
 
-	/*
-	* setzen der Hintergrundfarbe
-	* shiften um 4 Bits nach Links f�r die Form: 0b 0xxx 0000
-	*/
+	// setzen der Hintergrundfarbe
 	void setBackground(Color col)
 	{
-		this->x = ((col<<4) & BackgroundColor) | ((~BackgroundColor) & this-> x);
+		this->background = col;
 	}
 
-	/*
-	* setzen blinkender/nicht blinkender Text
-	* shiften um 7 Bits nach Links f�r die Form: 0b x000 0000
-	*/
-
+	// setzen blinkender/nicht blinkender Text
 	void setBlinkState(bool blink)
 	{
-		if (blink)
-		{
-			x = x | Blink;
-		}
-		else {
-			x = x & ~Blink;
-		}
+		this->blink = blink;
 	}
 
 	// setzen aller Attribute
 	void setAttr(CgaAttr attr)
 	{
-		setForeground(attr.getForeground());
-		setBackground(attr.getBackground());
-		setBlinkState(attr.getBlinkState());
+		this->foreground = attr.foreground;
+		this->background = attr.background;
+		this->blink = attr.blink;
 	}
 
 	// ermitteln der Schriftfarbe
 	Color getForeground()
 	{
-		return Color(this->x & ForegroundColor);
+		return foreground;
 	}
 
 	// ermitteln der Hintergrundfarbe
 	Color getBackground()
 	{
-		return Color((this->x & BackgroundColor) >> 4);
+		return background;
 	}
 
 	// ermitteln ob Blink-Flag gesetzt ist
 	bool getBlinkState()
 	{
-		return (bool) (x >> 7);
+		return blink;
+	}
+
+	//Alle Attributes als Char
+	//Baut die Atribute zusammen und gibt Sie als ein Byte(Char) wieder
+	char getByteAttr() {
+        return ((((unsigned char) foreground) & 0x0F) | (((unsigned char) background & 0x07) << 4 ) | ((unsigned char)blink << 7));
 	}
 
 private:
 
-	char x;
+	Color foreground;
+	Color background;
+	bool blink;
+
+
+
 };
 
 #endif

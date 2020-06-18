@@ -1,4 +1,4 @@
-# -----------------------------------------------------------------------------
+#-----------------------------------------------------------------------------
 #
 #                              M A K E F I L E
 #
@@ -6,13 +6,13 @@
 # 'Betriebssysteme 1' an der BTU-Cottbus im SS11
 # -----------------------------------------------------------------------------
 #
-# Folgende Make-Targets sind mï¿½glich
+# Folgende Make-Targets sind möglich
 #
-# depend 	: ï¿½berprï¿½ft alle Abhï¿½ngigkeiten und schreibt diese in eine Datei
+# depend 	: überprüft alle Abhängigkeiten und schreibt diese in eine Datei
 # system.img 	: erstellt das Speicherabbild des Betriebssystems
 # bootdisk.img	: erstellt das Speicherabbild des Betriebssystem + Bootcode
-# bootdisk	: kopiert das bootfï¿½hig Speicherabbild auf Diskette
-# clean		: lï¿½scht alle generierten Dateien
+# bootdisk	: kopiert das bootfähig Speicherabbild auf Diskette
+# clean		: löscht alle generierten Dateien
 #
 # -----------------------------------------------------------------------------
 #LINUX and CYGWIN so far
@@ -33,9 +33,10 @@ MACHINE_S = \
 	io/ports.asm \
 	thread/switchContext.asm \
 	cpu/cpu.asm
-
+	
 SYSTEM_C = \
 	lib/tools.c
+
 
 SYSTEM_CC = \
 	$(INITFINI) \
@@ -44,19 +45,24 @@ SYSTEM_CC = \
 	device/PIC.cc \
 	device/PIT.cc \
 	device/Clock.cc \
-	interrupts/Gate.cc \
-	interrupts/InterruptGuardian.cc \
-	interrupts/PageFaultGate.cc \
-	interrupts/PanicGate.cc \
-	interrupts/SpuriousGate.cc \
+	device/CodeTable.cc \
+	device/Keyboard.cc \
 	io/PrintStream.cc \
 	lib/Queue.cc \
+	interrupts/Gate.cc \
+	interrupts/InterruptGuardian.cc \
+	interrupts/PanicGate.cc \
+	interrupts/SpuriousGate.cc \
+	interrupts/PageFaultGate.cc \
 	thread/Activity.cc \
 	thread/ActivityScheduler.cc \
+  	thread/Scheduler.cc \
 	thread/Coroutine.cc \
-	thread/Scheduler.cc \
-	mainPre.cc
-
+	tools/Calc.cc \
+	tools/Interp.cc \
+	tools/Scanner.cc \
+	mainCalc.cc \
+	
 ##############################################################################
 
 STARTUP_SOURCE = $(addprefix ../machine/,$(STARTUP_S))
@@ -98,7 +104,7 @@ OBJCOPY = objcopy
 
 ASFLAGS = -DLINUX -f elf32
 CFLAGS = -c -m32 -fno-stack-protector -DLINUX -Wall -fno-exceptions $(INCLUDES)
-CXXFLAGS = -c -m32 -fno-stack-protector -DLINUX -Wall -fno-rtti -fno-exceptions $(INCLUDES)
+CXXFLAGS = -c -m32 -lstdc++ -fno-stack-protector -DLINUX -Wall -fno-rtti -fno-exceptions -std=c++17  $(INCLUDES)
 LDFLAGS = -melf_i386 -e get_protected -T ../machine/linux.ls -o system
 LDHEAD = $(shell $(CXX) -m32 --print-file-name=crti.o && \
 	   $(CXX) -m32 --print-file-name=crtbegin.o)
@@ -108,7 +114,7 @@ LDTAIL = $(shell $(CXX) -m32 --print-file-name=crtend.o && \
 endif
 
 # -------------------------------------------------------------------------
-# Die Targets fï¿½r die Kompilierung
+# Die Targets für die Kompilierung
 
 %.o : %.asm
 	$(AS) $(ASFLAGS) -o $@ $<
@@ -131,7 +137,7 @@ bootdisk: system
 	grub-mkrescue -d /usr/lib/grub/i386-pc -o costubs.iso isodir
 
 
-# Bekanntmachen von Targets die keine Abhï¿½ngigkeiten haben
+# Bekanntmachen von Targets die keine Abhängigkeiten haben
 .PHONY: clean depend
 
 depend:
@@ -155,11 +161,11 @@ clean:
 	@rm -f system
 	@rm -f $(DEPENDENCIES_FILE)
 
-# erstellt die Datei mit den Abhï¿½ngigkeiten
+# erstellt die Datei mit den Abhängigkeiten
 $(DEPENDENCIES_FILE):
 	touch $(DEPENDENCIES_FILE)
 	$(MAKE) depend
 
-# einbinden der Datei mit den aktuellen Abhï¿½ngigkeiten
+# einbinden der Datei mit den aktuellen Abhängigkeiten
 sinclude $(DEPENDENCIES_FILE)
 

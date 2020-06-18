@@ -10,17 +10,23 @@
  */
 
 #include "interrupts/Gate.h"
+#include "interrupts/InterruptGuardian.h"
 #include "device/PIT.h"
+#include "device/PIC.h"
+#include "io/PrintStream.h"
+#include "thread/Scheduler.h"
+#include "thread/ActivityScheduler.h"
 
-class Clock: public Gate, public PIT
-{
+extern PrintStream out;
+
+class Clock: public Gate, public PIT {
 public:
 
 	/**	Spaetere Initialisierung...
 	 *	Hier ist nur im Konstruktor dafuer zu sorgen,
 	 *	dass sich Gate korrekt initialisieren kann
 	 */
-	Clock();
+	Clock ();
 
 	/**	Initialisierung des "Ticks" der Uhr
 	 *	Standardmaessig setzen wir das
@@ -30,9 +36,7 @@ public:
 	 *	Zum Testen koennt Ihr bei Bedarf einen hoeheren Wert einstellen
 	 *	Weitere Hinweise zur Implementierung siehe "windup"
 	 */
-	explicit Clock(int us);
-
-	~Clock();
+	explicit Clock (int us);
 
 	/**	Initialisierung des "Ticks" der Uhr
 	 * 	Die Einheit sind Mikrosekunden.
@@ -70,11 +74,12 @@ public:
 	 */
 	int ticks()
 	{
-		return m_Ticks;
+		return this->tick;
 	}
-
+    
 private:
-	int m_Ticks;
+	PIC pic;
+	int tick;
 };
 
 extern Clock clock;

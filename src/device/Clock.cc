@@ -1,73 +1,50 @@
-// belserich on 02.06.20
-
-#include <device/PIC.h>
-#include <interrupts/InterruptVector.h>
-#include <io/PrintStream.h>
-#include <thread/ActivityScheduler.h>
 #include "device/Clock.h"
 
-extern PIC pic;
-extern PrintStream out;
-extern ActivityScheduler scheduler;
+/* Clock konstruktoren
+	setzt ticks auf 0 und je nach übergabe das Uhreninterval
+	intialisiert Gate mit Imer und PIT
 
-Clock::Clock()
-	: Gate(Timer), PIT(), m_Ticks(0)
-{}
+*/
+Clock::Clock() : Gate(InterruptVector::Timer), PIT() {
+    this->tick = 0;
+};
 
-Clock::Clock(int us)
-	: Gate(Timer), PIT(us), m_Ticks(0)
-{
-	pic.enable(0);
-}
+Clock::Clock(int us) : Gate(InterruptVector::Timer), PIT(us) {
+    this->tick = 0;
+    windup(us);
+};
 
-Clock::~Clock()
-{
-	pic.disable(0);
-}
+/*	windup Methode
+initialisiert Ticks und pit 
 
-void Clock::windup(int us)
-{
-	static bool debug = false;
-	if (us >= 0)
-	{
-		interval(us);
-		pic.enable(0);
+*/
+void Clock::windup(int us) {
+	//Interval setzten
+	interval(us);
+	pic.enable(PIC::PIT);
+};
+
+/* handle Methode
+Wird jeden tick aufgerufen
+
+*/
+void Clock::handle() {
+	//Pic bestätigen
+    pic.ack();
+	/*
+	if(tick%200 == 0 ){
+      out.print("\r|");
+      tick = 0;
+	} else if(tick%150 == 0) {
+		out.print("\r\\");
+	} else if(tick%100 == 0) {
+		out.print("\r-");
+	} else if(tick%50 == 0) {
+		out.print("\r/");
 	}
-	else
-	{
-		if (debug)
-		{
-			out.print("Disabling clock.");
-		}
-		pic.disable(0);
-	}
-}
-
-void Clock::handle()
-{
-	static bool test = false;
-
-	m_Ticks += 1;
-	pic.ack();
-
-	if (test)
-	{
-		IntLock lock;
-		int clockPhase = (m_Ticks / 50) % 4;
-		char ch;
-		switch (clockPhase)
-		{
-			case 0: ch = '-'; break;
-			case 1: ch = '\\'; break;
-			case 2: ch = '|'; break;
-			case 3: ch = '/'; break;
-			default: ch = '?'; break;
-		}
-		out.print(ch);
-		out.print("\r");
-	}
-	else
-	{
-		scheduler.checkSlice();
-	}
-}
+    tick++;
+	*/
+	//out.print("Check");
+	//Zeitscheiben überprüfen
+    scheduler.checkSlice();
+};

@@ -1,7 +1,6 @@
 #include "device/PIC.h"
 
-// num ist stellvertretender Bezeichner fuer eine Interrupt-Quelle (0 <= num <= 15)
-void PIC::enable(int num)
+void PIC::enable (int num)
 {
 	if (num < 8) // PIC 1
 		imr1.write (imr1.read () & (~(1 << num)));
@@ -9,8 +8,8 @@ void PIC::enable(int num)
 		imr2.write (imr2.read () & (~(1 << (num-8))));
 }
 
-// siehe enable
-void PIC::disable(int num)
+
+void PIC::disable (int num)
 {
 	if (num < 8) // PIC 1
 		imr1.write (imr1.read () | (1 << num));
@@ -18,7 +17,7 @@ void PIC::disable(int num)
 		imr2.write (imr2.read () | (1 << (num-8)));
 }
 
-void PIC::ack(int num)
+void PIC::ack (int num)
 {
 	ack();
 }

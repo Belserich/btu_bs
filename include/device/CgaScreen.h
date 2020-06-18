@@ -21,85 +21,72 @@ private:
 
 	// Die I/O-Ports des Grafikcontrollers
 	enum Ports  {
-        P1 = 0x3D4, // Indexregister (nur schreiben)
-        P2 = 0x3D5 // Datenregister (lesen und schreiben)
+		INDEX = 0x3d4,
+		DATA = 0x3d5
 	};
-
-//	Grafikkarte
-//	----------------
-//	Adresse		Wert
-//	0x14		0
-//	0x15		0
-//
-//	Setze Cursor an Cursorindex 10
-//	0x3D4 = 14
-//	0x3D5 = 10
 
 	// Die Kommandos zum Cursor setzen
 	enum Cursor {
-        I1 = 14,
-        I2 = 15
+		cursorHigh = 14,
+		cursorLow = 15
+	};
+
+	// Die Adresse des Video RAMs
+	enum Video  {
+		ADDRESS = 0xB8000
 	};
 
 public:
 	// Die Bildschirmdimensionen
 	enum Screen {
-		Rows = 25,
-		Columns = 80
-	};
-
-	// Die Adresse des Video RAMs
-	// Offset 0 im Video-RAM wird mit (hexadezimal) b8000 adressiert
-	enum Video  {
-		Offset0 = 0xb8000
+		ROWS = 25,
+		COLUMNS = 80
 	};
 
 	// Standardattribute waehlen und Bildschirm loeschen
-    /* attr2 initialisiert, keine Parameter übergeben, also Defaultwerte verwendet */
-	CgaScreen();    // default constructor
+	CgaScreen();
 
 	// Angegebene Attribute setzen und Bildschirm loeschen
 	explicit CgaScreen(CgaAttr attr);
 
 	// Loeschen des Bildschirms
-    // Offset0 + i * 2      -> 1.Byte
-    // Offset0 + i * 2 + 1  -> 2.Byte
 	void clear ();
 
 	// Verschieben des Bildschirms um eine Zeile
 	void scroll();
 
 	// Setzen/Lesen der globalen Bildschirmattribute
-    // Ab hier werden References genutzt, also am Typ hängt ein &
-	void setAttr(const CgaAttr& attr);
+	void setAttr(const CgaAttr& attr)
+	{
+		this->attr.setAttr(attr);
+	}
 
-	void getAttr(CgaAttr& attr);
+	void getAttr(CgaAttr& attr)
+	{
+		attr.setAttr(this->attr);
+	}
 
 	// Setzen/Lesen des HW-Cursors
 	void setCursor(int column, int row);
-
-//	Grafikkarte
-//	----------------
-//	Adresse		Wert
-//	0x14		0
-//	0x15		0
-//
-//	Hole Cursor-Wert
-//	0x3D4 = 14
-//	0x3D5 = ?? Wert der da vorher lag
 	void getCursor(int& column, int& row);
 
+
 	// Anzeigen von c an aktueller Cursorposition
-	// Darstellung mit angegebenen Bildschirmattributen
+    	// Darstellung mit angegebenen Bildschirmattributen
 	void show(char ch, const CgaAttr& attr);
+	
+	//Zeigt ch an aktueller Cursor Position and und setzt das fertige Byte als Attribut
+	
+	void showAttr(char ch, unsigned char attr);
 
 	// Anzeigen von c an aktueller Cursorposition
     	// Darstellung mit aktuellen Bildschirmattributen
 	void show(char ch);
 
+
 protected:
 
-	CgaAttr mAttr;
+	CgaAttr attr;
 	IOPort8 index;
 	IOPort8 data;
 	CgaChar* screen;

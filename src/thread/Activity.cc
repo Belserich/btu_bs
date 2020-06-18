@@ -1,85 +1,69 @@
-#include <thread/ActivityScheduler.h>
 #include "thread/Activity.h"
+#include "thread/ActivityScheduler.h"
 
-extern PrintStream out;
+/*	Konstruuktoren setzten initial Zustand
+	und starten ggf den Prozess
+	
+*/
+Activity::Activity(void *tos) : Coroutine(tos) {
+	IntLock lock;
+    this->state = BLOCKED;
+};
 
-Activity::Activity(void *tos, const char* name, int timeSlice)
-	: Schedulable(timeSlice), Coroutine(tos), mName(name), isMain(false)
-{}
+Activity::Activity() {
+    this->state = BLOCKED;
+    scheduler.start(this);
+};
 
-Activity::Activity(const char* name, int timeSlice)
-	: Schedulable(timeSlice), Coroutine(), mName(name), isMain(true)
-{
-	scheduler.start(this); // setzt die laufende Activity
-}
+/*
+	Destruktor
+	killt den Prozess
+*/
+Activity::~Activity() {
+    scheduler.kill(this);
+};
 
-/* Veranlasst den Scheduler, diese Aktivitaet aufzuwecken.
- */
-void Activity::wakeup()
-{
-	changeTo(READY);
-	scheduler.schedule(this);
-}
-
-/* Diese Aktivitaet gibt die CPU vorruebergehend ab.
- */
-void Activity::yield()
-{
-	changeTo(READY);
-	scheduler.reschedule();
-}
-
-/* Veranlasst den Scheduler, diese Aktivitaet zu suspendieren.
- */
-void Activity::sleep()
-{
+/* Sleep Methode
+	Legt den Prozessor schlafen und stellt ihn hinten wieder in die Liste
+*/
+void Activity::sleep() {
 	scheduler.suspend();
-}
+};
 
-/* Diese Aktivitaet wird terminiert. Hier muss eine eventuell
- * auf die Beendigung wartende Aktivit�t geweckt werden.
- */
-void Activity::exit()
-{
-//	IntLock lock; // um Konsistenz ueber mehrere Iterationen der for-Schleife hinweg zu bewahren
+/*	Wakeup Methode
+	Weckt den Prozess auf und scheduelt ihn
+*/
+void Activity::wakeup() {
+	IntLock lock;
+	this->state = READY;
+	scheduler.schedule(this);
+};
 
-	for (Activity* parent = (Activity*) parents.dequeue(); parent != nullptr; parent = (Activity*) parents.dequeue())
-	{
-		parent->changeTo(READY);
-		scheduler.schedule(parent);
-	}
+/* yield Methode
+	Prozess wird pausiert und neuer wird aktiviert
+*/
+void Activity::yield() {
+    scheduler.reschedule(); 
+};
 
-	scheduler.kill(this);
-}
+/* exit Methode
+	schließt den Prozess und setzt ihn als Zombie
+*/
+void Activity::exit() {
+    this->state = ZOMBIE;
+    scheduler.exit();
+};
 
-/* Der aktuelle Prozess wird solange schlafen gelegt, bis der
- * Prozess auf dem join aufgerufen wird beendet ist. Das
- * Wecken des wartenden Prozesses �bernimmt exit.
- */
-void Activity::join()
-{
-	IntLock lock; // weil aufs aktive Element der readyList zugegriffen wird
-
-	Activity* parent = (Activity*) scheduler.active();
-	if (!isZombie() && parent != this)
-	{
-		parents.enqueue(parent);
-		scheduler.suspend();
-	}
-}
-
-Activity::~Activity()
-{
-	if (!isZombie())
-	{
-		exit();
-	}
-
-//	if (isMain)
-//	{
-//		while (true)
-//		{
-//			CPU::halt();
-//		}
-//	}
-}
+/* join Metehode
+	setzt den activen Prozess als Erbe des neuen
+	und suspendet den  activen  Prozess und holt ein neuen
+*/
+void Activity::join() {
+	IntLock lock;
+	if(this != scheduler.getActiveActivity()) {
+		if ((!isZombie())) { 
+			setSuccessor(scheduler.getActiveActivity());
+			scheduler.suspend();
+		}
+    }
+};

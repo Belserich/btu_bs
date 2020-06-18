@@ -1,22 +1,19 @@
-// belserich on 20.05.20
-
-#include <interrupts/IntLock.h>
 #include "thread/Scheduler.h"
 
-void Scheduler::schedule(Schedulable *sched)
-{
+// Einfuegen eines Elements in die Liste
+void Scheduler::schedule(Schedulable *sched) {
 	IntLock lock;
-	readylist.enqueue(sched);
+    readylist.enqueue((Chain*) sched);
 }
 
-void Scheduler::remove(Schedulable *sched)
-{
+// Entfernen des Elements von der Liste
+void Scheduler::remove(Schedulable *sched) {
 	IntLock lock;
-	readylist.remove(sched);
+    readylist.remove((Chain*) sched);
 }
 
-void Scheduler::reschedule()
-{
+// Aktiviert das vorderste element der liste und holt es von d er liste
+void Scheduler::reschedule() {
 	IntLock lock;
-	activate((Schedulable*) readylist.dequeue());
+    activate((Schedulable*) readylist.dequeue());
 }
