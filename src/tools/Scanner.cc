@@ -35,7 +35,9 @@ bool Scanner::lookahead(char* dest)
 
 bool Scanner::isDigit(char ch)
 {
-	return ch >= 48 && ch < 58;
+	return ch >= 48 && ch < 58; // 48 ist '0' und 57 ist '9'
+	return ch - 48 < 10;
+	// return ch == '0' || ...;
 }
 
 bool Scanner::isWhitespace(char ch)

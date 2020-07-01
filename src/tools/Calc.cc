@@ -100,11 +100,14 @@ void Calculator::body()
 
 void Calculator::insert(char c)
 {
-	for (int i = EXPR_SIZE_MAX - 1; i > numChars && i > 1; i--)
+	if (buffer[EXPR_SIZE_MAX-1] == '\0')
 	{
-		buffer[i] = buffer[i-1];
+		for (int i = EXPR_SIZE_MAX - 1; i > numChars && i > 1; i--)
+		{
+			buffer[i] = buffer[i-1];
+		}
+		buffer[numChars++] = ch;
 	}
-	buffer[numChars++] = ch;
 }
 
 void Calculator::enter()

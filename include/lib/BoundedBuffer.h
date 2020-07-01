@@ -54,9 +54,7 @@ public:
 		{
     		Activity* act = (Activity*) scheduler.active();
     		queue.enqueue((Chain*) act);
-    		CPU::enableInterrupts();
     		act->sleep();
-    		CPU::disableInterrupts();
 		}
 
 		return buffer[--index];
